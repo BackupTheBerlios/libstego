@@ -1,0 +1,17 @@
+#!/bin/sh
+
+TEST_CODE=f5-embed-test.c
+TEST_PROG=f5-embed-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile
+
+#LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes -v ./$TEST_PROG
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego ./$TEST_PROG
+
+TEST_CODE=f5-extract-test.c
+TEST_PROG=f5-extract-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile
+
+#LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes -v ./$TEST_PROG
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego ./$TEST_PROG

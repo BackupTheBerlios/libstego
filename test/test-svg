@@ -1,0 +1,9 @@
+#!/bin/sh
+
+TEST_CODE=svg-test.c
+TEST_PROG=svg
+
+gcc $TEST_CODE -g -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile `xml2-config --cflags` -lxml2 -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --leak-check=full --show-reachable=yes ./$TEST_PROG
+#LD_LIBRARY_PATH=../src/libstegofile:../src/libstego ./$TEST_PROG

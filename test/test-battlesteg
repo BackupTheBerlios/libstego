@@ -1,0 +1,15 @@
+#!/bin/sh
+
+TEST_CODE=bs-embed-test.c
+TEST_PROG=bs-embed-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego  ./$TEST_PROG
+
+TEST_CODE=bs-extract-test.c
+TEST_PROG=bs-extract-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind ./$TEST_PROG

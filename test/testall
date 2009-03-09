@@ -1,0 +1,148 @@
+
+
+# WAV
+# ======================
+TEST_CODE=wav-test.c
+TEST_PROG=wav-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=wav.log --track-fds=yes -v./$TEST_PROG
+
+
+# SVG
+# ======================
+TEST_CODE=svg-test.c
+TEST_PROG=svg-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=svg.log --track-fds=yes -v ./$TEST_PROG
+
+
+
+# Sort/Unsort
+# ======================
+TEST_CODE=sort_unsort-test.c
+TEST_PROG=sort_unsort-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=sort_unsort.log --track-fds=yes -v ./$TEST_PROG
+
+
+
+# LSB
+# ======================
+TEST_CODE=lsb-test.c
+TEST_PROG=lsb-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=lsb.log --track-fds=yes -v ./$TEST_PROG
+
+
+
+# CPT
+# ======================
+TEST_CODE=cpt-test.c
+TEST_PROG=cpt-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=cpt.log --track-fds=yes -v ./$TEST_PROG
+
+
+# Battlesteg
+# ======================
+TEST_CODE=bs-embed-test.c
+TEST_PROG=bs-embed-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=bs_embed.log --track-fds=yes -v ./$TEST_PROG
+
+TEST_CODE=bs-extract-test.c
+TEST_PROG=bs-extract-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=bs_extract.log --track-fds=yes -v ./$TEST_PROG
+
+
+# Adv-GIF-Shuffle
+# ======================
+TEST_CODE=advgifshuffle-test.c
+TEST_PROG=advgifshuffle-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=agifshuffle.log --track-fds=yes -v ./$TEST_PROG
+
+# GIF-Shuffle
+# ======================
+TEST_CODE=gifshuffle-test.c
+TEST_PROG=gifshuffle-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=gifshuffle.log --track-fds=yes -v ./$TEST_PROG
+
+# GIF
+# ======================
+TEST_CODE=gif-test.c
+TEST_PROG=gif-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=gif.log --track-fds=yes -v ./$TEST_PROG
+
+# Frirui
+# ======================
+TEST_CODE=frirui-embed-test.c
+TEST_PROG=frirui-embed-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=frirui_embed.log --track-fds=yes -v ./$TEST_PROG
+
+TEST_CODE=frirui-extract-test.c
+TEST_PROG=frirui-extract-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=frirui_extract.log --track-fds=yes -v ./$TEST_PROG
+
+# F5
+# ======================
+TEST_CODE=f5-embed-test.c
+TEST_PROG=f5-embed-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g 
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=f5_embed.log --track-fds=yes -v ./$TEST_PROG
+
+TEST_CODE=f5-extract-test.c
+TEST_PROG=f5-extract-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=f5_extract.log --track-fds=yes -v ./$TEST_PROG
+
+
+#PQ
+# ======================
+TEST_CODE=pq-embed-test.c
+TEST_PROG=pq-embed-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=pq_embed.log --track-fds=yes -v ./$TEST_PROG
+
+TEST_CODE=pq-extract-test.c
+TEST_PROG=pq-extract-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=20 --log-file=pq_extract.log --track-fds=yes -v ./$TEST_PROG
+

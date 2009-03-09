@@ -1,0 +1,10 @@
+#!/bin/sh
+
+TEST_CODE=cpt-test.c
+TEST_PROG=cpt-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -std=c99 -g
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes -v ./$TEST_PROG
+
+#LD_LIBRARY_PATH=../src/libstegofile:../src/libstego gdb ./$TEST_PROG

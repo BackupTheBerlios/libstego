@@ -1,0 +1,8 @@
+#!/bin/sh
+
+TEST_CODE=get_set_msg_block-test.c
+TEST_PROG=gsmb-test
+
+gcc $TEST_CODE -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile -g -std=c99
+
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego gdb ./$TEST_PROG

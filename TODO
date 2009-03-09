@@ -1,0 +1,26 @@
+TODO
+====
+
+
+* File I/O
+** reading/writing
+*** TODO GIF
+*** TODO BMP
+*** TODO PNG
+*** TODO WAV
+*** TODO Flac
+*** TODO CSS
+*** TODO PDF
+** data extraction
+*** TODO Rasterdata
+*** TODO Coefficients
+*** TODO Indexdata
+*** TODO Palettedata
+*** TODO CSS-Data
+*** TODO PDF-Data
+*** TODO Audiodata
+* helper functions for algorithms
+** TODO get_row
+** TODO get_column
+** TODO get_block
+** TODO select_bit_plane

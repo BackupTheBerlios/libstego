@@ -1,0 +1,30 @@
+import os
+
+vars = Variables()
+vars.Add(BoolVariable('debug', 'build with debug symbols', 0))
+
+env = Environment(variables=vars, CPPPATH=['include', '../include'],
+                  CCFLAGS=['-std=c99', '-Wall'])
+
+Help(vars.GenerateHelpText(env))
+
+conf = Configure(env)
+
+if not conf.CheckLib('gslcblas'):
+    print "Error: gslcblas not found"
+    exit(1)
+
+if not conf.CheckLibWithHeader('gsl','gsl/gsl_sys.h','C'):
+    print "Error: gsl headers not found"
+    exit(1)
+
+if not conf.CheckLib('gmp'):
+    print "Error: libgmp not found"
+    exit(1)
+
+if env['debug']:
+  env.Append(CCFLAGS=['-g'])
+
+env=conf.Finish()
+
+env.SharedLibrary('libstego', Glob('*.c'))
