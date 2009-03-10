@@ -369,6 +369,7 @@ uint32_t matrix_sum(const gsl_matrix * a)
  * the current embed/extract operation
  * @param *block the target block
  * @return the weight of the given block
+ */
 uint32_t block_weight(cpt_state *context, gsl_matrix *block)
 {
     gsl_matrix *work = empty_block(context);
@@ -387,6 +388,8 @@ uint32_t block_weight(cpt_state *context, gsl_matrix *block)
  * the current embed/extract operation
  * @param *block_index the position of the block in the image
  * @return the weight of the block at block_index
+ */
+
 uint32_t block_weight_by_index(cpt_state *context, uint32_t block_index)
 {
     gsl_matrix *block = empty_block(context);
