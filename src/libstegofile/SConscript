@@ -1,26 +1,9 @@
 import os
 
-vars = Variables()
-vars.Add(BoolVariable('withoutjpeg', 'build without jpeg support', 0))
-vars.Add(BoolVariable('withoutpng', 'build without png support', 0))
-vars.Add(BoolVariable('withoutwav', 'build without wav support', 0))
-vars.Add(BoolVariable('withoutgif', 'build without gif support', 0))
-vars.Add(BoolVariable('withoutsvg', 'build without svg support', 0))
-vars.Add(BoolVariable('debug', 'build with debug symbols', 0))
+Import('env')
 
 
-
-env = Environment(variables=vars, CPPPATH=['include', '../include'],
-                  CPPDEFINES={'WITH_JPEG' : '${not withoutjpeg}',
-                              'WITH_WAV' : '${not withoutwav}',
-                              'WITH_GIF' : '${not withoutgif}',
-                              'WITH_PNG' : '${not withoutpng}',
-                              'WITH_SVG' : '${not withoutsvg}'},
-                  CCFLAGS='-std=c99')
-
-Help(vars.GenerateHelpText(env))
-
-conf = Configure(env)
+conf=Configure(env)
 
 if env['debug']:
   env.Append(CCFLAGS=['-g'])
@@ -34,35 +17,35 @@ if env['debug']:
 #   exit(1)
 
 if not env['withoutjpeg']:
-   if not conf.CheckLib('fftw3'):
-      exit(1)
+  if not conf.CheckLib('fftw3'):
+    exit(1)
 
 if not env['withoutjpeg']:
-   if not conf.CheckLib('jpeg'):
-      exit(1)
+  if not conf.CheckLib('jpeg'):
+    exit(1)
 
 if not env['withoutwav']:
-   if not conf.CheckLib('sndfile'):
-      exit(1)
+  if not conf.CheckLib('sndfile'):
+    exit(1)
 
 if not env['withoutpng']:
-   if not conf.CheckLibWithHeader('png', 'png.h', 'C'):
-      exit(1)
+  if not conf.CheckLibWithHeader('png', 'png.h', 'C'):
+    exit(1)
 
 if not env['withoutgif']:
-   if not conf.CheckLibWithHeader('libgif', 'gif_lib.h', 'C'):
-      exit(1)
+  if not conf.CheckLibWithHeader('libgif', 'gif_lib.h', 'C'):
+    exit(1)
 
 
 if not env['withoutsvg']:
-   # I don't know if this is the correct way to do it, but it did not work
-   # without the next lines.
-   # - Jan
-   xml2config = os.popen('xml2-config --cflags').read()
-   xml2config = xml2config[:-1]
-   env.Append(CCFLAGS=[xml2config])
-   if not conf.CheckLib('libxml2'):
-      exit(1)
+  # I don't know if this is the correct way to do it, but it did not work
+  # without the next lines.
+  # - Jan
+  xml2config = os.popen('xml2-config --cflags').read()
+  xml2config = xml2config[:-1]
+  env.Append(CCFLAGS=[xml2config])
+  if not conf.CheckLib('libxml2'):
+    exit(1)
 
 
 env=conf.Finish()

@@ -1,0 +1,30 @@
+import os, distutils.sysconfig
+
+Import('env')
+
+
+swig = Builder(action = 'swig -make_default -python $SOURCE',
+               suffix = '_wrap.c',
+               src_suffix='.i')
+
+
+env.Append(BUILDERS = {'Swig' : swig})
+env.Append(CPPPATH = distutils.sysconfig.get_python_inc())
+
+
+
+
+
+lsb  = env.Swig('libstego')
+lsfb = env.Swig('libstegofile')
+
+env.SharedObject('libstego_wrap', 'libstego_wrap.c')
+env.SharedObject('libstegofile_wrap', 'libstegofile_wrap.c')
+
+lso  = env.SharedLibrary('_libstego', ['libstego_wrap', '#/src/libstego/libstego.so'])
+lsfo  = env.SharedLibrary('_libstegofile', ['libstegofile_wrap', '#/src/libstegofile/libstegofile.so'])
+
+env.Alias('bindings', [lsb, lso, lsfb, lsfo])
+
+
+
