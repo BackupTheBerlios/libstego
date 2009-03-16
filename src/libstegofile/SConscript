@@ -16,9 +16,6 @@ if env['debug']:
 #if not conf.CheckHeader('jpeglib.h'):
 #   exit(1)
 
-if not env['withoutjpeg']:
-  if not conf.CheckLib('fftw3'):
-    exit(1)
 
 if not env['withoutjpeg']:
   if not conf.CheckLib('jpeg'):
