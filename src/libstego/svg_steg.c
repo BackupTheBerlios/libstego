@@ -20,11 +20,13 @@
  *  Matthias Kloppenborg, Marko Krause, Christian Kuka, Sebastian Schnell,
  *  Ralf Treu.
  *
+ *  Author: Jan C. Busch <jan.c.busch@uni-oldenburg.de>
+ *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
- 
- 
- 
+
+
+
 #include "libstego/svg_steg.h"
 
 /* Local structs */
@@ -53,6 +55,21 @@ uint32_t svg_wrap_lsb(
         const svg_parameter_t *param,
         enum svg_wrap_mode wrap_mode);
 
+
+/**
+ * Wrapper function for using LSB with SVG data. Depending on the wrap_mode
+ * parameter, this function is equivalent to a call to lsb_embed, lsb_extract or
+ * lsb_get_message_length.
+ *
+ * @param data The SVG data which should be used for embedding or extracting.
+ * @param message Pointer to the message, which will be embedded or extracted.
+ * @param msglen Pointer to the message length.
+ * @parem param Pointer to a set of parameters for the SVG algorithm.
+ * @param wrap_mode The function this function should wrap, one of
+ * SVG_WRAP_EMBED, SVG_WRAP_EXTRACT or SVG_WRAP_MSGLEN.
+ *
+ * @return LSTG_OK on success, LSTG_ERROR if there was an error.
+ */
 uint32_t svg_wrap_lsb(
         const svg_data_t *data,
         uint8_t **message,
@@ -174,6 +191,7 @@ uint32_t svg_wrap_lsb(
             // re-assemble the changed matrices
             for (i = 0; i < data->num_attribs; ++i ) {
                 if (matrices[i]) {
+                    // free space, will be replaced by new matrix
                     SAFE_DELETE(data->attributes[i].data);
                     join_matrix(&data->attributes[i].data, matrices[i]);
                 }
@@ -297,6 +315,7 @@ uint32_t svg_embed(
         data_len = sizeof(uint8_t) * (strlen(src->attributes[i].data)+1);
         stego->attributes[i].data = (uint8_t*)malloc(sizeof(uint8_t) * data_len);
         if (stego->attributes[i].data == NULL) {
+            SAFE_DELETE(stego->attributes);
             FAIL(LSTG_E_MALLOC);
         }
         memcpy(stego->attributes[i].data, src->attributes[i].data, data_len);
@@ -308,6 +327,9 @@ uint32_t svg_embed(
     // keep in line with the interface. the same goes for 'msglen', see above
     msg = (uint8_t*)malloc(sizeof(uint8_t) * msglen);
     if (msg == NULL) {
+        for (i = 0; i< src->num_attribs; ++i)
+            SAFE_DELETE(stego->attributes[i].data);
+        SAFE_DELETE(stego->attributes);
         FAIL(LSTG_E_MALLOC);
     }
     memcpy(msg, message, msglen);
@@ -404,6 +426,17 @@ uint32_t svg_check_capacity(
     return LSTG_OK;
 }
 
+
+/**
+ * Splits a matrix-string in the form of "matrix(a.b, c.d, e.f, g.h, i.j, k.l)"
+ * into a linked list of strings "a.b"->"c.d"->"e.f"->"g.h"->"i.j"->"k.l".
+ *
+ * @param matrix The string that is to be slplit.
+ * @param head The head of the linked list that will contain the seperated
+ * matrix elements.
+ *
+ * @return LSTG_OK on success, LSTG_ERROR if there was an error.
+ */
 uint32_t split_matrix(uint8_t *matrix, svg_llist_head_t *head) {
     uint8_t *cur_pos = matrix;
     uint32_t matrix_len = strlen(matrix);
@@ -433,24 +466,25 @@ uint32_t split_matrix(uint8_t *matrix, svg_llist_head_t *head) {
         // create new list entry
         elem = (svg_llist_t*)malloc(sizeof(svg_llist_t));
         if (elem == NULL) {
+            free_list(head);
             FAIL(LSTG_E_MALLOC);
         }
         elem->str = 0;
-        elem->next = 0;
+
+        // attach new element to the list
+        elem->next = first;
+        first = elem;
 
         // copy found string into list
         elem->str = (uint8_t*)malloc(sizeof(uint8_t) * (str_len + 1));
         if (elem->str == NULL) {
+            free_list(head);
             FAIL(LSTG_E_MALLOC);
         }
         memcpy(elem->str, cur_pos, str_len);
 
         // set null termination for string
         elem->str[str_len] = '\0';
-
-        // attach new element to the list
-        elem->next = first;
-        first = elem;
 
         // advance to next number
         cur_pos = nxt_pos;
@@ -479,6 +513,15 @@ uint32_t split_matrix(uint8_t *matrix, svg_llist_head_t *head) {
     return LSTG_OK;
 }
 
+/**
+ * Joins a linked list of matrix elements into a string in the form of
+ * "matrix(a.b, c.d, e.f, g.h, i.j, k.l)".
+ *
+ * @param matrix Pointer to a string, which will contain the assembled matrix.
+ * @param head The head of the linked list containing the seperate matrix elements.
+ *
+ * @return LSTG_OK on success, LSTG_ERROR if there was an error.
+ */
 uint32_t join_matrix(uint8_t **matrix, svg_llist_head_t head) {
     uint32_t matrix_length = 0;
     uint8_t *cur_str_pos = 0;
@@ -522,6 +565,14 @@ uint32_t join_matrix(uint8_t **matrix, svg_llist_head_t head) {
     return LSTG_OK;
 }
 
+
+/**
+ * Frees a linked list.
+ *
+ * @param head The head of the linked list that should be freed
+ *
+ * @return LSTG_OK on success, LSTG_ERROR if there was an error.
+ */
 uint32_t free_list(svg_llist_head_t head) {
     svg_llist_t *current = head;
     svg_llist_t *next;

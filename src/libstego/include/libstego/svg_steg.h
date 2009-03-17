@@ -20,11 +20,13 @@
  *  Matthias Kloppenborg, Marko Krause, Christian Kuka, Sebastian Schnell,
  *  Ralf Treu.
  *
+ *  Author: Jan C. Busch <jan.c.busch@uni-oldenburg.de>
+ *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
- 
- 
- 
+
+
+
 #ifndef __SVG_STEG_H__
 #define __SVG_STEG_H__
 
