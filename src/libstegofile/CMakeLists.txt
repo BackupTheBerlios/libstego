@@ -13,4 +13,11 @@ add_library(stegofile SHARED ${source_files})
 set_target_properties(stegofile PROPERTIES COMPILE_FLAGS -std=c99)
  
 
+install(TARGETS stegofile ${include_files}
+  LIBRARY DESTINATION lib)
 
+install(DIRECTORY ./include/ DESTINATION include
+  FILES_MATCHING PATTERN *.h)
+
+#install(DIRECTORY ../include/ DESTINATION include
+#  FILES_MATCHING PATTERN *.h)
