@@ -17,9 +17,18 @@ SET(CPACK_PACKAGE_VERSION_PATCH "0")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "libstego_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 INCLUDE(CPack)
 
+OPTION(BUILD_LIBSTEGO "build libstego library" ON)
+OPTION(BUILD_LIBSTEGOFILE "build libstegofile library" ON)
+OPTION(BUILD_BINDINGS "build swig bindings" ON)
 
+IF(BUILD_LIBSTEGO)
+  add_subdirectory (src/libstego)
+ENDIF()
 
-add_subdirectory (src)
+IF(BUILD_LIBSTEGOFILE)
+  add_subdirectory(src/libstegofile)
+ENDIF()
 
-add_subdirectory (swig_bindings)
-
+IF(BUILD_BINDINGS)
+  add_subdirectory (swig_bindings)
+ENDIF()
