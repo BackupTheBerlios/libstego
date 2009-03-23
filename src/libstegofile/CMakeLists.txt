@@ -10,7 +10,8 @@ include_directories(include/ ../include ${LIBXML2_INCLUDE_DIRS})
 
 add_library(stegofile SHARED ${source_files})
 
-set_target_properties(stegofile PROPERTIES COMPILE_FLAGS -std=c99)
+add_definitions(-std=c99)
+
  
 
 install(TARGETS stegofile ${include_files}

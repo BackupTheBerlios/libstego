@@ -15,6 +15,7 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "libstego_${CPACK_PACKAGE_VERSION_MAJOR}.${C
 INCLUDE(CPack)
 
 
+
 add_subdirectory (src)
 
 add_subdirectory (swig_bindings)
