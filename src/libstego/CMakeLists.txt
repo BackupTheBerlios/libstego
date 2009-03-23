@@ -1,12 +1,20 @@
 
 file(GLOB source_files *.c)
 
-include_directories(include/ ../include)
+find_package(gsl REQUIRED)
 
+
+
+
+include_directories(include/ ../include 
+  ${gsl_INCLUDE_DIRS})
+
+set(LIBS ${LIBS} ${gsl_LIBRARIES})
 
 
 add_library(stego SHARED ${source_files})
 
+target_link_libraries(stego ${LIBS})
 
 add_definitions(-std=c99)
 

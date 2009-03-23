@@ -27,4 +27,5 @@ config.log
 CMakeCache.txt
 CMakeFiles
 *.cmake
+!cmake/**/*
 Makefile
