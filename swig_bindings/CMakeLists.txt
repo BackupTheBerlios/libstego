@@ -15,8 +15,6 @@ INCLUDE_DIRECTORIES(../src/include
 
 #SET(CMAKE_SWIG_FLAGS "")
 
-#SET_SOURCE_FILES_PROPERTIES(libstego.i PROPERTIES CPLUSPLUS ON)
-#SET_SOURCE_FILES_PROPERTIES(libstego.i PROPERTIES SWIG_FLAGS "-includeall")
 SWIG_ADD_MODULE(libstego python libstego.i)
 SWIG_LINK_LIBRARIES(libstego ${PYTHON_LIBRARIES})
 
@@ -25,6 +23,9 @@ SWIG_LINK_LIBRARIES(libstegofile ${PYTHON_LIBRARIES})
 
 # Fix libpng/setjmp annoyance
 
-ADD_CUSTOM_COMMAND(TARGET libstegofile
-  POST_BUILD
-  COMMAND sh linkfix.sh)
+ADD_CUSTOM_TARGET(setjmpfix ALL
+  ./linkfix.sh
+  DEPENDS libstegofilePYTHON_wrap.c)
+
+ADD_DEPENDENCIES(_libstegofile
+  setjmpfix)
