@@ -73,7 +73,7 @@ uint32_t frirui_get_message_length(const palette_data_t *stego_data, const friru
 
 uint32_t frirui_check_capacity(const palette_data_t *src_data, uint32_t *capacity, const frirui_parameter *para);
 
-uint32_t frirui_calc_parity(uint8_t *parity, rgb_pixel_t *table, 
+void frirui_calc_parity(uint8_t *parity, rgb_pixel_t *table, 
 			    uint32_t tbl_size);
 
 uint32_t frirui_calc_distances(rgb_pixel_t *table, uint32_t tbl_size, 
@@ -117,7 +117,7 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 				    uint32_t tbl_size, rgb_pixel_t *table);
 
 uint32_t embed_bit_to_2X2BLOCK(uint8_t bit, BLOCK2X2 *block, uint32_t tbl_size, 
-	uint32_t *usable_blocks, uint8_t *new_colortable,
+	uint8_t *new_colortable,
 	uint32_t *usable_colors, rgb_pixel_t *table, 
 	uint32_t usable_length, uint8_t *parity);
 
