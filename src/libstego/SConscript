@@ -11,10 +11,6 @@ if not conf.CheckLibWithHeader('gsl','gsl/gsl_sys.h','C'):
     print "Error: gsl headers not found"
     exit(1)
     
-if not conf.CheckLib('gmp'):
-    print "Error: libgmp not found"
-    exit(1)
-
 if env['debug']:
     env.Append(CCFLAGS=['-g'])
     
