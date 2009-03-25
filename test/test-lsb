@@ -5,5 +5,5 @@ TEST_PROG=lsb
 
 gcc $TEST_CODE -g -o $TEST_PROG -I../src/include -I../src/libstego/include -I../src/libstegofile/include -L../src/libstego -L../src/libstegofile -lsndfile -lpng -ljpeg -lgif -lstego -lstegofile
 
-LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --leak-check=full ./$TEST_PROG
-#LD_LIBRARY_PATH=../src/libstegofile:../src/libstego ./$TEST_PROG
+#LD_LIBRARY_PATH=../src/libstegofile:../src/libstego valgrind --leak-check=full ./$TEST_PROG
+LD_LIBRARY_PATH=../src/libstegofile:../src/libstego ./$TEST_PROG
