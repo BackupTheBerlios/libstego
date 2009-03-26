@@ -65,19 +65,19 @@ if 'bindings' in BUILD_TARGETS:
 
 
 
-#p = env.Package( NAME='libstego',
-#                 VERSION='0.1.0',
-#                 PACKAGEVERSION=0,
-#                 PACKAGETYPE="$PACKAGETYPE",
-#                 LICENSE='gpl',
-#                 SUMMARY='a set of steganographic libraries',
-#                 DESCRIPTION='blah',
-#                 X_RPM_GROUP='Library/security',
-#                 SOURCE_URL='http://here'
-#                 )
+p = env.Package( NAME='libstego',
+                 VERSION='0.1.0',
+                 PACKAGEVERSION=0,
+                 PACKAGETYPE="$PACKAGETYPE",
+                 LICENSE='gpl',
+                 SUMMARY='a set of steganographic libraries',
+                 DESCRIPTION='blah',
+                 X_RPM_GROUP='Library/security',
+                 SOURCE_URL='http://here'
+                 )
 
 
-#env.Alias('pkg', p)
+env.Alias('pkg', p)
 
 
 

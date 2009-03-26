@@ -7,9 +7,6 @@ conf=Configure(env)
 
 if env['debug']:
   env.Append(CCFLAGS=['-g'])
- 
-env.Append(LIBPATH = ['../libstego/'])
-env.Append(LIBS = ['libstego'])
 
 
 #Skipping check for jpeglib header because it does not
@@ -28,13 +25,8 @@ if not env['withoutwav']:
   if not conf.CheckLib('sndfile'):
     exit(1)
 
-# does not work with windows
-#if not env['withoutpng']:
-#  if not conf.CheckLibWithHeader('png', 'png.h', 'C'):
-#    exit(1)
-
 if not env['withoutpng']:
-  if not conf.CheckLib('png'):
+  if not conf.CheckLibWithHeader('png', 'png.h', 'C'):
     exit(1)
 
 if not env['withoutgif']:
@@ -51,7 +43,6 @@ if not env['withoutsvg']:
   env.Append(CCFLAGS=[xml2config])
   if not conf.CheckLib('libxml2'):
     exit(1)
-
 
 
 env=conf.Finish()

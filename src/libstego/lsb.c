@@ -20,13 +20,11 @@
  *  Matthias Kloppenborg, Marko Krause, Christian Kuka, Sebastian Schnell,
  *  Ralf Treu.
  *
- *  Author: Jan C. Busch <jan.c.busch@uni-oldenburg.de>
- *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
-
-
-
+ 
+ 
+ 
 #include "libstego/lsb.h"
 
 // DEBUG
@@ -47,7 +45,7 @@ uint32_t lsb_select_random_bytes(
 
 
 /**
- * Selects coverbytes continuously one after another from a lsb_data_t,
+ * Selects coverbytes continuously one after another from an array of bytes,
  * starting at the first byte in the array.
  *
  * @param cover A pointer to a lsb_data_t structure, containing the cover data.
@@ -65,6 +63,10 @@ uint32_t lsb_select_continuous_bytes(
         const lsb_parameter_t *param) {
     uint32_t i = 0;
 
+    // DEBUG
+    printf("lsb_select_continuous_bytes()\n");
+    fflush(stdout);
+
     // check if there are enough bytes in the image to fulfill the request
     if (cover->size < num_bytes_selected) {
         FAIL(LSTG_E_INSUFFCAP);
@@ -75,12 +77,16 @@ uint32_t lsb_select_continuous_bytes(
         sel_bytes[i] = &cover->data[i];
     }
 
+    // DEBUG
+    printf("~lsb_select_continuous_bytes()\n");
+    fflush(stdout);
+
     // success
     return LSTG_OK;
 }
 
 /**
- * Randomly selects a number of bytes from a lsb_data_t.
+ * Randomly selects a number of bytes from an array of bytes.
  *
  * @param data Pointer to a lsb_data_t structure, containing the cover bytes.
  * @param sel_bytes Pointer to an array that will contain the pointers to the
@@ -96,11 +102,15 @@ uint32_t lsb_select_random_bytes(
         uint8_t **sel_bytes,
         const uint32_t num_bytes_select,
         const lsb_parameter_t *param) {
-    uint32_t i = 0;
+    uint32_t i = 0, last_selected_byte = 0;;
     uint32_t rnd = 0;
     uint8_t *buffer = 0;
     uint8_t **tmp_copy = 0;
     prng_state *prng = 0;
+
+    // DEBUG
+    printf("lsb_select_random_bytes()\n");
+    fflush(stdout);
 
     if (cover->size < num_bytes_select) {
         FAIL(LSTG_E_INSUFFCAP);
@@ -131,13 +141,17 @@ uint32_t lsb_select_random_bytes(
     // free pointers (NOT the actual data!)
     SAFE_DELETE(tmp_copy);
 
+    // DEBUG
+    printf("~lsb_select_random_bytes()\n");
+    fflush(stdout);
+
     return LSTG_OK;
 }
 
 /**
  * Embeds a message in the least significant bit of an array of bytes.
  * Note that the order in which the bits of the message will be embedded into
- * the bytes of the cover can be configured by the param parameter.
+ * the bytes of the cover can be configured by the lsb param structure.
  *
  * @param src Pointer to a lsb_data_t structure, containing the original cover
  * bytes.
@@ -157,6 +171,10 @@ uint32_t lsb_embed(
         const lsb_parameter_t *param) {
     uint32_t i = 0, n = 0, num_bits = 0;
     uint8_t **bytes = 0;
+
+    // DEBUG
+    printf("lsb_embed()\n");
+    fflush(stdout);
 
     // length may not be bigger than one eigth of the maximum of uint32_t, else
     // we risk a buffer overflow and resulting madnesses when we multiply it
@@ -210,6 +228,11 @@ uint32_t lsb_embed(
             break;
     };
 
+    // DEBUG
+    printf("lsb_embed() 0010\n");
+    printf("lsb_embed() param->use_msb %d\n", param->use_msb);
+    fflush(stdout);
+
     if (param->use_msb == 0) {
         // Embed the length of the message, so we can extract it later.
         // If we don't do this, the length of the message can not be determined on
@@ -250,6 +273,10 @@ uint32_t lsb_embed(
     }
 
     SAFE_DELETE(bytes);
+
+    // DEBUG
+    printf("~lsb_embed()\n");
+    fflush(stdout);
 
     // success
     return LSTG_OK;
@@ -328,7 +355,7 @@ uint32_t lsb_get_message_length(
         }
     }
 
-    SAFE_DELETE(bytes);
+    free(bytes);
 
     return LSTG_OK;
 }
@@ -388,7 +415,6 @@ uint32_t lsb_extract(
             if (lsb_select_continuous_bytes(data, bytes, num_bits, param)
                     != LSTG_OK) {
                 SAFE_DELETE(bytes);
-                SAFE_DELETE(*message);
                 // error code already set
                 return LSTG_ERROR;
             }
@@ -399,7 +425,6 @@ uint32_t lsb_extract(
             if (lsb_select_random_bytes(data, bytes, num_bits, param)
                     != LSTG_OK) {
                 SAFE_DELETE(bytes);
-                SAFE_DELETE(*message);
                 // error code already set
                 return LSTG_ERROR;
             }
@@ -407,7 +432,6 @@ uint32_t lsb_extract(
 
         default:
             SAFE_DELETE(bytes);
-            SAFE_DELETE(*message);
             FAIL(LSTG_E_INVALIDPARAM);
             break;
     };
@@ -489,9 +513,15 @@ uint32_t lsb_convert_png(
 
 uint32_t lsb_cleanup_converted_data(
         uint8_t **bytes) {
+    // DEBUG
+    printf("lsb_cleanup_converted_data()\n");
+    fflush(stdout);
+
     free(bytes);
 
-    return LSTG_OK;
+    // DEBUG
+    printf("~lsb_cleanup_converted_data()\n");
+    fflush(stdout);
 }
 
 
@@ -500,7 +530,7 @@ uint32_t lsb_cleanup_converted_data(
 /**
  * Gets the embedded messages length. Identical to lsb_get_message_length, only
  * that this function works on bytes pointed to by an array of pointers, instead
- * of working on a lsb_data_t structure.
+ * of working on bytes directly.
  *
  * @param bytes An array of pointers to uint8_t's, that the message was embedded
  * into previously.
@@ -566,6 +596,10 @@ uint32_t lsb_embed_indirect(
     lsb_data_t cover, stego;
     uint32_t i = 0;
 
+    // DEBUG
+    printf("lsb_embed_indirect()\n");
+    fflush(stdout);
+
     cover.size = num_bytes;
     cover.data = (uint8_t*)malloc(sizeof(uint8_t) * num_bytes);
     if (cover.data == NULL) {
@@ -591,13 +625,25 @@ uint32_t lsb_embed_indirect(
         return LSTG_ERROR;
     }
 
+    // DEBUG
+    printf("lsb_embed_indirect() 0010\n");
+    fflush(stdout);
+
     // 'write back' the stego bytes
     for (i = 0; i < num_bytes; ++i) {
         *bytes[i] = stego.data[i];
     }
 
+    // DEBUG
+    printf("lsb_embed_indirect() 0020\n");
+    fflush(stdout);
+
     SAFE_DELETE(cover.data);
     SAFE_DELETE(stego.data);
+
+    // DEBUG
+    printf("~lsb_embed_indirect()\n");
+    fflush(stdout);
 
     return LSTG_OK;
 }
@@ -640,7 +686,6 @@ uint32_t lsb_extract_indirect(
 
     // extract normally
     if (lsb_extract(&cover, message, msglen, param) != LSTG_OK) {
-        SAFE_DELETE(cover.data);
         // don't set error code
         return LSTG_ERROR;
     }

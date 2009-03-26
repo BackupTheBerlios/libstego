@@ -52,12 +52,14 @@ uint8_t io_wav_read(const uint8_t *filename, wav_data_t *wav_data, wav_internal_
     // open wav-file
     file = sf_open(filename, SFM_READ, &int_dat->info);
     if (file == NULL) {
-        FAIL(LSTG_E_OPENFAILED);
+        lstg_errno = LSTG_E_OPENFAILED;
+        return LSTG_ERROR;
     }
 
     int_dat->data = (int*)malloc(sizeof(int) * int_dat->info.channels * int_dat->info.frames);
     if (int_dat->data == NULL) {
-        FAIL(LSTG_E_MALLOC);
+        lstg_errno = LSTG_E_MALLOC;
+        return LSTG_ERROR;
     }
 
     // force floating point values within the file to be scaled correctly
@@ -66,7 +68,8 @@ uint8_t io_wav_read(const uint8_t *filename, wav_data_t *wav_data, wav_internal_
     // read content of wav-file
     frames_read = sf_readf_int(file, int_dat->data, int_dat->info.frames);
     if (frames_read != int_dat->info.frames) {
-        FAIL(LSTG_E_READFAILED);
+        lstg_errno = LSTG_E_READFAILED;
+        return LSTG_ERROR;
     }
 
     // close the file
@@ -76,12 +79,14 @@ uint8_t io_wav_read(const uint8_t *filename, wav_data_t *wav_data, wav_internal_
     // the channel, second dimension the samples of that channel.
     wav_data->data = (int16_t**)malloc(sizeof(int16_t*) * int_dat->info.channels);
     if (wav_data->data == NULL) {
-        FAIL(LSTG_E_MALLOC);
+        lstg_errno = LSTG_E_MALLOC;
+        return 1;
     }
     for (i = 0; i < int_dat->info.channels; i++) {
         wav_data->data[i] = (int16_t*)malloc(sizeof(int16_t)*int_dat->info.frames);
         if (wav_data->data[i] == NULL) {
-            FAIL(LSTG_E_MALLOC);
+            lstg_errno = LSTG_E_MALLOC;
+            return 1;
         }
         for (k = 0; k < int_dat->info.frames; k++) {
             wav_data->data[i][k] = (int_dat->data[k*int_dat->info.channels+i]) >> 16;
@@ -111,7 +116,8 @@ uint8_t io_wav_integrate(wav_internal_data_t *wav_struct, const wav_data_t *wav_
     // check for size mismatches
     if (wav_struct->info.channels != wav_data->num_channels ||
             wav_struct->info.frames != wav_data->size) {
-        FAIL(LSTG_E_SIZEMISMATCH);
+        lstg_errno = LSTG_E_SIZEMISMATCH;
+        return LSTG_ERROR;
     }
 
     for (channel = 0; channel < wav_struct->info.channels; ++channel) {
@@ -142,13 +148,15 @@ uint8_t io_wav_write(const uint8_t *filename, wav_internal_data_t *wav_struct)
     SF_INFO sf_info = int_dat->info;
 
     if (wav_struct == NULL) {
-        FAIL(LSTG_E_INVALIDPARAM);
+        lstg_errno = LSTG_E_INVALIDPARAM;
+        return LSTG_ERROR;
     }
 
     file = sf_open(filename, SFM_WRITE, &sf_info);
 
     if (file == NULL) {
-        FAIL(LSTG_E_OPENFAILED);
+        LSTG_E_OPENFAILED;
+        return LSTG_ERROR;
     }
 
     sf_writef_int(file, int_dat->data, int_dat->info.frames);
@@ -170,7 +178,8 @@ uint8_t io_wav_copy_internal(const wav_internal_data_t *src, wav_internal_data_t
 {
     copy->data = (int32_t*)malloc(sizeof(int32_t) * src->info.channels * src->info.frames);
     if (copy->data == NULL) {
-        FAIL(LSTG_E_MALLOC);
+        lstg_errno = LSTG_E_MALLOC;
+        return LSTG_ERROR;
     }
 
     // copy all values of the SF_INFO structure

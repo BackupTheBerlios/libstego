@@ -35,7 +35,7 @@ int test_indirect(lsb_parameter_t *param) {
     int ret = 0, i = 0;
 	FILE *fp = 0;
 	uint32_t capacity = 0, length = 0;
-	uint8_t message[] = "TEST!";
+	uint8_t message[] = "王冠";
 	uint8_t *buffer = 0;
 	uint8_t *cover = 0;
 	uint8_t **bytes = 0;
@@ -133,7 +133,7 @@ int test(lsb_parameter_t *param) {
 	FILE *fp = 0;
 	lsb_data_t data, stego;
 	uint32_t capacity = 0, length = 0;
-	uint8_t message[] = "TEST!";
+	uint8_t message[] = "王冠";
 	uint8_t *buffer = 0;
 	uint8_t *cover = 0;
 
@@ -221,7 +221,7 @@ int test_png(lsb_parameter_t *param) {
     uint8_t **bytes = 0;
     uint32_t size = 0, capacity = 0, length = 0;
     uint8_t *buffer = 0;
-	uint8_t message[] = "Dies ist ein Test.";
+    uint8_t message[] = "王冠";
 
     printf("Embedding \"%s\"\n", message);
 
@@ -313,7 +313,7 @@ int main(int argc, char *argv[]) {
 	param.pwlen = 4;
 	param.use_msb = 1;
 
-    printf("\n\nDirect: Testing continuous selecting\n\n");
+    printf("Direct: Testing continuous selecting\n\n");
     param.select_mode = LSB_SELECT_CONTINUOUS;
 	test(&param);
 
@@ -329,7 +329,7 @@ int main(int argc, char *argv[]) {
 
 	remove("lsb_out.txt");
 
-	printf("\n\nIndirect: Testing random selecting\n\n");
+	printf("\n\Indirect: Testing random selecting\n\n");
 	param.select_mode = LSB_SELECT_RANDOM;
 	test_indirect(&param);
 

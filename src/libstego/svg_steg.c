@@ -20,13 +20,11 @@
  *  Matthias Kloppenborg, Marko Krause, Christian Kuka, Sebastian Schnell,
  *  Ralf Treu.
  *
- *  Author: Jan C. Busch <jan.c.busch@uni-oldenburg.de>
- *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
-
-
-
+ 
+ 
+ 
 #include "libstego/svg_steg.h"
 
 /* Local structs */
@@ -55,21 +53,6 @@ uint32_t svg_wrap_lsb(
         const svg_parameter_t *param,
         enum svg_wrap_mode wrap_mode);
 
-
-/**
- * Wrapper function for using LSB with SVG data. Depending on the wrap_mode
- * parameter, this function is equivalent to a call to lsb_embed, lsb_extract or
- * lsb_get_message_length.
- *
- * @param data The SVG data which should be used for embedding or extracting.
- * @param message Pointer to the message, which will be embedded or extracted.
- * @param msglen Pointer to the message length.
- * @parem param Pointer to a set of parameters for the SVG algorithm.
- * @param wrap_mode The function this function should wrap, one of
- * SVG_WRAP_EMBED, SVG_WRAP_EXTRACT or SVG_WRAP_MSGLEN.
- *
- * @return LSTG_OK on success, LSTG_ERROR if there was an error.
- */
 uint32_t svg_wrap_lsb(
         const svg_data_t *data,
         uint8_t **message,
@@ -79,7 +62,7 @@ uint32_t svg_wrap_lsb(
 
     uint32_t capacity = 0;
     uint32_t bytes_selected = 0;
-    uint32_t bit_length = 0;
+    uint32_t bit_length = 0, data_len = 0;
     uint32_t i = 0, dec_len = 0, k = 0;
     uint8_t *start = 0, *end = 0;
     uint8_t return_code = LSTG_OK;
@@ -134,7 +117,7 @@ uint32_t svg_wrap_lsb(
         matrices[i] = 0;
 
         // we only embed in transform matrices
-        if (strncmp("matrix(", (char*)data->attributes[i].data, 7) == 0) {
+        if (strncmp("matrix(", data->attributes[i].data, 7) == 0) {
             if (split_matrix(data->attributes[i].data, &matrices[i]) != LSTG_OK) {
                 // error code alredy set
                 return_code = LSTG_ERROR;
@@ -144,16 +127,16 @@ uint32_t svg_wrap_lsb(
                 // get decimal part of number (between '.' and the exponent (if any)
 
                 // find decimal point
-                start = (uint8_t*)strchr((char*)current->str, '.');
+                start = strchr(current->str, '.');
                 if (start == NULL) {
                     // there was no '.' in this number, skip it
                     continue;
                 }
                 // find exponent (if any)
-                end = (uint8_t*)strchr((char*)current->str, 'e');
+                end = strchr(current->str, 'e');
                 if (end == NULL) {
                     // there was no exponent, set end to end of string
-                    end = current->str + strlen((char*)current->str);
+                    end = current->str + strlen(current->str);
                 }
                 // calculate length of decimal part
                 dec_len = end - start - 1;
@@ -191,7 +174,6 @@ uint32_t svg_wrap_lsb(
             // re-assemble the changed matrices
             for (i = 0; i < data->num_attribs; ++i ) {
                 if (matrices[i]) {
-                    // free space, will be replaced by new matrix
                     SAFE_DELETE(data->attributes[i].data);
                     join_matrix(&data->attributes[i].data, matrices[i]);
                 }
@@ -312,10 +294,9 @@ uint32_t svg_embed(
     }
 
     for (i = 0; i < src->num_attribs; ++i) {
-        data_len = sizeof(uint8_t) * (strlen((char*)src->attributes[i].data)+1);
+        data_len = sizeof(uint8_t) * (strlen(src->attributes[i].data)+1);
         stego->attributes[i].data = (uint8_t*)malloc(sizeof(uint8_t) * data_len);
         if (stego->attributes[i].data == NULL) {
-            SAFE_DELETE(stego->attributes);
             FAIL(LSTG_E_MALLOC);
         }
         memcpy(stego->attributes[i].data, src->attributes[i].data, data_len);
@@ -327,9 +308,6 @@ uint32_t svg_embed(
     // keep in line with the interface. the same goes for 'msglen', see above
     msg = (uint8_t*)malloc(sizeof(uint8_t) * msglen);
     if (msg == NULL) {
-        for (i = 0; i< src->num_attribs; ++i)
-            SAFE_DELETE(stego->attributes[i].data);
-        SAFE_DELETE(stego->attributes);
         FAIL(LSTG_E_MALLOC);
     }
     memcpy(msg, message, msglen);
@@ -359,6 +337,7 @@ uint32_t svg_extract(
         uint8_t **message,
         uint32_t *msglen,
         const svg_parameter_t *param) {
+    uint32_t ret = 0;
 
     return svg_wrap_lsb(data, message, msglen, param, SVG_WRAP_EXTRACT);
 }
@@ -386,7 +365,7 @@ uint32_t svg_check_capacity(
 
     for (i = 0; i < data->num_attribs; ++i) {
         // we only embed in transform matrices
-        if (strncmp("matrix(", (char*)data->attributes[i].data, 7) == 0) {
+        if (strncmp("matrix(", data->attributes[i].data, 7) == 0) {
             if (split_matrix(data->attributes[i].data, &head) != LSTG_OK) {
                 // error code already set
                 return LSTG_ERROR;
@@ -395,16 +374,16 @@ uint32_t svg_check_capacity(
                 // get decimal part of number (between '.' and the exponent (if any)
 
                 // find decimal point
-                start = (uint8_t*)strchr((char*)current->str, '.');
+                start = strchr(current->str, '.');
                 if (start == NULL) {
                     // there was no '.' in this number, skip it
                     continue;
                 }
                 // find exponent (if any)
-                end = (uint8_t*)strchr((char*)current->str, 'e');
+                end = strchr(current->str, 'e');
                 if (end == NULL) {
                     // there was no exponent, set end to end of string
-                    end = current->str + strlen((char*)current->str);
+                    end = current->str + strlen(current->str);
                 }
                 // calculate length of decimal part
                 dec_len = end - start - 1;
@@ -425,31 +404,21 @@ uint32_t svg_check_capacity(
     return LSTG_OK;
 }
 
-
-/**
- * Splits a matrix-string in the form of "matrix(a.b, c.d, e.f, g.h, i.j, k.l)"
- * into a linked list of strings "a.b"->"c.d"->"e.f"->"g.h"->"i.j"->"k.l".
- *
- * @param matrix The string that is to be slplit.
- * @param head The head of the linked list that will contain the seperated
- * matrix elements.
- *
- * @return LSTG_OK on success, LSTG_ERROR if there was an error.
- */
 uint32_t split_matrix(uint8_t *matrix, svg_llist_head_t *head) {
     uint8_t *cur_pos = matrix;
-    uint32_t matrix_len = strlen((char*)matrix);
+    uint32_t matrix_len = strlen(matrix);
     uint8_t *nxt_pos = 0;
     uint32_t str_len = 0;
     svg_llist_t *elem = 0, *current = 0, *next = 0;
     svg_llist_head_t first = 0;
+    uint8_t i = 0;
 
     // skip the leading "matrix("
     cur_pos += 7;
 
     while (cur_pos < matrix + matrix_len) {
         // find next ","
-        nxt_pos = (uint8_t*)strchr((char*)cur_pos, ',');
+        nxt_pos = strchr(cur_pos, ',');
         if (nxt_pos == NULL) {
             nxt_pos = matrix + matrix_len;
             // we don't want the trailing ')'
@@ -464,25 +433,24 @@ uint32_t split_matrix(uint8_t *matrix, svg_llist_head_t *head) {
         // create new list entry
         elem = (svg_llist_t*)malloc(sizeof(svg_llist_t));
         if (elem == NULL) {
-            free_list(*head);
             FAIL(LSTG_E_MALLOC);
         }
         elem->str = 0;
-
-        // attach new element to the list
-        elem->next = first;
-        first = elem;
+        elem->next = 0;
 
         // copy found string into list
         elem->str = (uint8_t*)malloc(sizeof(uint8_t) * (str_len + 1));
         if (elem->str == NULL) {
-            free_list(*head);
             FAIL(LSTG_E_MALLOC);
         }
         memcpy(elem->str, cur_pos, str_len);
 
         // set null termination for string
         elem->str[str_len] = '\0';
+
+        // attach new element to the list
+        elem->next = first;
+        first = elem;
 
         // advance to next number
         cur_pos = nxt_pos;
@@ -511,15 +479,6 @@ uint32_t split_matrix(uint8_t *matrix, svg_llist_head_t *head) {
     return LSTG_OK;
 }
 
-/**
- * Joins a linked list of matrix elements into a string in the form of
- * "matrix(a.b, c.d, e.f, g.h, i.j, k.l)".
- *
- * @param matrix Pointer to a string, which will contain the assembled matrix.
- * @param head The head of the linked list containing the seperate matrix elements.
- *
- * @return LSTG_OK on success, LSTG_ERROR if there was an error.
- */
 uint32_t join_matrix(uint8_t **matrix, svg_llist_head_t head) {
     uint32_t matrix_length = 0;
     uint8_t *cur_str_pos = 0;
@@ -528,7 +487,7 @@ uint32_t join_matrix(uint8_t **matrix, svg_llist_head_t head) {
     // get length of final string
     matrix_length = 9; // "matrix(" + ")" + "\0"
     for (current = head; current != NULL; current = current->next) {
-        matrix_length += strlen((char*)current->str);
+        matrix_length += strlen(current->str);
 
         // if there'll be another number after this, add a ","
         if (current->next != NULL) {
@@ -547,8 +506,8 @@ uint32_t join_matrix(uint8_t **matrix, svg_llist_head_t head) {
     memcpy(cur_str_pos, "matrix(", 7);
     cur_str_pos += 7;
     for (current = head; current != NULL; current = current->next) {
-        memcpy(cur_str_pos, current->str, strlen((char*)current->str));
-        cur_str_pos += strlen((char*)current->str);
+        memcpy(cur_str_pos, current->str, strlen(current->str));
+        cur_str_pos += strlen(current->str);
 
         // if there'll be another number after this, add a ","
         if (current->next != NULL) {
@@ -563,14 +522,6 @@ uint32_t join_matrix(uint8_t **matrix, svg_llist_head_t head) {
     return LSTG_OK;
 }
 
-
-/**
- * Frees a linked list.
- *
- * @param head The head of the linked list that should be freed
- *
- * @return LSTG_OK on success, LSTG_ERROR if there was an error.
- */
 uint32_t free_list(svg_llist_head_t head) {
     svg_llist_t *current = head;
     svg_llist_t *next;
