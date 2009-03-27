@@ -45,8 +45,6 @@ uint32_t io_png_integrate(png_internal_data_t *png_internal, const rgb_data_t *r
 
 uint32_t io_png_write(const uint8_t *filename, png_internal_data_t *png_internal);
 
-uint32_t io_png_copy_internal(const void *src_struct, void *copy);
-
 uint32_t io_png_cleanup_data(rgb_data_t *rgb_data);
 
 uint32_t io_png_cleanup_internal(png_internal_data_t *png_internal);
