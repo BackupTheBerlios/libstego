@@ -400,6 +400,10 @@ typedef struct {
 typedef struct {
 } t_parameter;
 
+typedef struct {
+} pc_parameter_t;
+
+
 
 enum LSB_SELECT_MODE {
     LSB_SELECT_CONTINUOUS = 1,
