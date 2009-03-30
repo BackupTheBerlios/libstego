@@ -2,7 +2,6 @@
 %{
 #include "../src/include/libstego/types.h"
 
-#include "../src/libstegofile/include/libstego/bmp.h"
 #include "../src/libstegofile/include/libstego/gif.h"
 #include "../src/libstegofile/include/libstego/jpeg.h"
 #include "../src/libstegofile/include/libstego/png.h"
@@ -14,7 +13,6 @@
 %typedef int int32_t;
 %include "../src/include/libstego/types.h"
 
-%include "../src/libstegofile/include/libstego/bmp.h"
 %include "../src/libstegofile/include/libstego/gif.h"
 %include "../src/libstegofile/include/libstego/jpeg.h"
 %include "../src/libstegofile/include/libstego/png.h"
