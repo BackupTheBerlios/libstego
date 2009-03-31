@@ -24,3 +24,8 @@ config.log
 /test/cpt-test
 /test/cpt_stego.png
 /test/random-test
+CMakeCache.txt
+CMakeFiles
+*.cmake
+!cmake/**/*
+Makefile

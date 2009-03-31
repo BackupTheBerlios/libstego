@@ -19,6 +19,7 @@
  *  Copyright 2008 2009 by Jan C. Busch, René Frerichs, Lars Herrmann,
  *  Matthias Kloppenborg, Marko Krause, Christian Kuka, Sebastian Schnell,
  *  Ralf Treu.
+ *  Authors: Jan C. Busch, René Frerichs
  *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
@@ -34,7 +35,6 @@
 * @param *wav_data a struct to return the audio samples
 * @param *int_dat a struct provided by the wav-library to hold the original audio-file
 * @return LSTG_OK, or LSTG_ERROR when something failed.
-* @todo implement
 */
 uint8_t io_wav_read(const uint8_t *filename, wav_data_t *wav_data, wav_internal_data_t *int_dat)
 {
@@ -107,7 +107,6 @@ uint8_t io_wav_read(const uint8_t *filename, wav_data_t *wav_data, wav_internal_
 * @param *wav_struct a struct provided by the wav-library to hold the original audio data
 * @param *wav_data a struct to give the changed wavdata (steganogram)
 * @return LSTG_OK, or LSTG_ERROR when something failed.
-* @todo implement
 */
 uint8_t io_wav_integrate(wav_internal_data_t *wav_struct, const wav_data_t *wav_data)
 {
@@ -136,7 +135,6 @@ uint8_t io_wav_integrate(wav_internal_data_t *wav_struct, const wav_data_t *wav_
 * @param *filename the path and filename of the wav-file
 * @param *wav_struct a struct provided by the wav-library to hold the original audio data
 * @return LSTG_OK, or LSTG_ERROR when something failed.
-* @todo implement
 */
 uint8_t io_wav_write(const uint8_t *filename, wav_internal_data_t *wav_struct)
 {

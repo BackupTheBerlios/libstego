@@ -322,9 +322,9 @@ uint8_t randomize_indices(  prng_state *state,uint32_t num_of_indices,
 
 uint32_t frirui_embed_message_to_chains(uint8_t *message, uint32_t msglen, 
 	CHAIN *chains, uint32_t ch_length, uint32_t num_of_chains,
-	uint8_t *password, uint32_t pwlen, uint32_t size_x, uint32_t size_y, uint8_t *parity,
-	uint8_t *img_data,uint8_t *new_colortable, uint32_t tbl_size, 
-	rgb_pixel_t *table)
+	uint8_t *password, uint32_t pwlen, uint32_t size_x, uint32_t size_y, 
+	uint8_t *parity, uint8_t *img_data,uint8_t *new_colortable, 
+	uint32_t tbl_size, rgb_pixel_t *table)
 {
 
     printf("...starting embed message to chains\n"); 
@@ -352,13 +352,28 @@ uint32_t frirui_embed_message_to_chains(uint8_t *message, uint32_t msglen,
 	uint32_t *randomised_index = (uint32_t*) 
 	    malloc (num_of_chains * sizeof(uint32_t));
 	if(randomised_index == NULL){
+	    for(uint32_t i = 0; i < num_of_chains; i++){
+		SAFE_DELETE(chains[i].pixels);
+		SAFE_DELETE(chains[i].id_in_stream);
+	    }
+	    SAFE_DELETE(randomised_index);	    
 	    return LSTG_E_MALLOC;
 	}
 	prng_state *state = 0;
 	if(1 == random_init(&state,password,pwlen)){
+	    for(uint32_t i = 0; i < num_of_chains; i++){
+		SAFE_DELETE(chains[i].pixels);
+		SAFE_DELETE(chains[i].id_in_stream);
+	    }
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_E_MALLOC;
 	}
 	if(1 == randomize_indices(state,num_of_chains,randomised_index)){
+	    for(uint32_t i = 0; i < num_of_chains; i++){
+		SAFE_DELETE(chains[i].pixels);
+		SAFE_DELETE(chains[i].id_in_stream);
+	    }
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_E_MALLOC;
 	}
 	CHAIN *helper = (CHAIN*) malloc (num_of_chains * sizeof(CHAIN));
@@ -371,6 +386,7 @@ uint32_t frirui_embed_message_to_chains(uint8_t *message, uint32_t msglen,
 		helper[i].id_in_stream[j] = chains[randomised_index[i]].id_in_stream[j];
 	    }
 	}
+	SAFE_DELETE(randomised_index);
 	for(uint32_t i = 0; i < num_of_chains; i++){
 	    chains[i].parity = helper[i].parity;
 	    for(uint32_t j = 0; j < ch_length;j++){
@@ -382,8 +398,7 @@ uint32_t frirui_embed_message_to_chains(uint8_t *message, uint32_t msglen,
 	    free(helper[i].id_in_stream);
 	    helper[i].id_in_stream = 0;
 	}
-	free(helper);
-	helper = 0;
+	SAFE_DELETE(helper);
     }
     uint32_t len = msglen;
     for(uint32_t i = 0; i < 32; i++){//embed message length
@@ -395,6 +410,10 @@ uint32_t frirui_embed_message_to_chains(uint8_t *message, uint32_t msglen,
 	if(chains[i].parity != bit){
 	    if(embed_bit_to_chain(bit, &chains[i],ch_length, parity,
 			table, new_colortable,tbl_size)){
+		for(uint32_t i = 0; i < num_of_chains; i++){
+		    SAFE_DELETE(chains[i].pixels);
+		    SAFE_DELETE(chains[i].id_in_stream);
+		}
 		return LSTG_ERROR;
 	    }
 	}
@@ -414,6 +433,10 @@ uint32_t frirui_embed_message_to_chains(uint8_t *message, uint32_t msglen,
 		    if(embed_bit_to_chain(((helper & 128) == 128), 
 			    &chains[i],ch_length, parity,table, 
 			    new_colortable, tbl_size)){
+			for(uint32_t i = 0; i < num_of_chains; i++){
+			    SAFE_DELETE(chains[i].pixels);
+			    SAFE_DELETE(chains[i].id_in_stream);
+			}
 			return LSTG_ERROR;
 		    }
 		}
@@ -595,13 +618,16 @@ uint32_t frirui_embed_message_to_3X3BLOCKS(uint8_t **matrix, uint32_t rows,
 	uint32_t *randomised_index = (uint32_t*) 
 	    malloc (block_count * sizeof(uint32_t));
 	if(randomised_index == NULL){
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_E_MALLOC;
 	}
 	prng_state *state = 0;
 	if(1 == random_init(&state,password,pwlen)){
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_ERROR;
 	}
 	if(1 == randomize_indices(state,block_count,randomised_index)){
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_ERROR;
 	}
 	BLOCK3X3 *helper = (BLOCK3X3*) malloc (block_count * sizeof(BLOCK3X3));
@@ -614,6 +640,7 @@ uint32_t frirui_embed_message_to_3X3BLOCKS(uint8_t **matrix, uint32_t rows,
 		helper[i].position_y[j] = blocks[randomised_index[i]].position_y[j];
 	    }
 	}
+	SAFE_DELETE(randomised_index);
 	for(uint32_t i = 0; i < block_count; i++){
 	    blocks[i].parity = helper[i].parity;
 	    blocks[i].threshold = helper[i].threshold;
@@ -623,8 +650,7 @@ uint32_t frirui_embed_message_to_3X3BLOCKS(uint8_t **matrix, uint32_t rows,
 		blocks[i].position_y[j] = helper[i].position_y[j];
 	    }
 	}
-	free(helper);
-	helper = 0;
+	SAFE_DELETE(helper);
     }
     //embed 
     uint32_t  len = msglen;
@@ -645,7 +671,6 @@ uint32_t frirui_embed_message_to_3X3BLOCKS(uint8_t **matrix, uint32_t rows,
 		    if(!(embed_bit_to_3X3BLOCK(bit, &blocks[i], 
 			tbl_size, new_colortable, table, parity, 
 			threshold))){
-			printf("failed\n");
 			len = len << 1;
 			i++;
 			break;	
@@ -668,26 +693,28 @@ uint32_t frirui_embed_message_to_3X3BLOCKS(uint8_t **matrix, uint32_t rows,
     while(i < block_count){
     	for(j = 0; j < msglen; j++){
 	    helper = message[j];
-//	    printf("message[%u] = %u \n", j, message[j]);
+	    printf("message[%u] = %u \n", j, message[j]);
 	    for(uint32_t k = 0; k < 8; k++){
 		bit = ((helper & 128) == 128);
 		if(blocks[i].threshold < threshold){
 		    if(blocks[i].parity != bit){
-//			printf("a messagebit = %u \n", bit);
+			printf("a messagebit = %u \n", bit);
 			printf("...embedding to block %u in step %u \n", i, j); 
 			if(!(embed_bit_to_3X3BLOCK(bit, &blocks[i], 
 					tbl_size, new_colortable, table, 
 					parity, threshold))){
 			    
 			    helper <<= 1;
+			} else {
+			    k--;
 			}
 		    } else {
-//			printf("b messagebit = %u \n", bit);
+			printf("b messagebit = %u \n", bit);
 			printf("...embedding to block %u in step %u \n", i, j); 
 			helper <<= 1;
 		    }
 		} else {
-//		    printf("block %u threshold to high \n", i);
+		    printf("block %u threshold to high \n", i);
 		    k--;
 		}
 		i++;
@@ -919,13 +946,16 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 	uint32_t *randomised_index = (uint32_t*) 
 	    malloc (block_count * sizeof(uint32_t));
 	if(randomised_index == NULL){
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_E_MALLOC;
 	}
 	prng_state *state = 0;
 	if(1 == random_init(&state,password,pwlen)){
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_E_MALLOC;
 	}
 	if(1 == randomize_indices(state,block_count,randomised_index)){
+	    SAFE_DELETE(randomised_index);
 	    return LSTG_E_MALLOC;
 	}
 	BLOCK2X2 *helper = (BLOCK2X2*) malloc (block_count * sizeof(BLOCK2X2));
@@ -937,6 +967,7 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 		helper[i].position_y[j] = blocks[randomised_index[i]].position_y[j];
 	    }
 	}
+	SAFE_DELETE(randomised_index);
 	for(uint32_t i = 0; i < block_count; i++){
 	    blocks[i].parity = helper[i].parity;
 	    for(uint32_t j = 0; j < 4;j++){
@@ -945,8 +976,7 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 		blocks[i].position_y[j] = helper[i].position_y[j];
 	    }
 	}
-	free(helper);
-	helper = 0;
+	SAFE_DELETE(helper);
     }
     //find usable 2x2 blocks
     i = 0;
@@ -1061,6 +1091,7 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 	    }
         }
     }
+    SAFE_DELETE(not_usable_blocks);
     uint32_t *usable_colors = 0;
     uint32_t usable_length = 0;
     //find usable colors
@@ -1086,7 +1117,10 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 	    usable_colors[usable_length - 1] = i;
 	}
     }
+    SAFE_DELETE(not_usable_colors);
     if(usable_colors == 0){
+	SAFE_DELETE(usable_colors);
+	SAFE_DELETE(usable_blocks);
 	printf("******FAILURE : no usable colors found \n");
 	return LSTG_E_INSUFFCAP;
     }
@@ -1105,7 +1139,7 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 	    if(blocks[usable_blocks[i]].parity != bit){
 		printf("...parity != bit : embedding to block %u in step %u \n", usable_blocks[i], j); 
 		if(!(embed_bit_to_2X2BLOCK(bit, &blocks[usable_blocks[i]], 
-				tbl_size, usable_blocks, new_colortable, 
+				tbl_size, new_colortable, 
 				usable_colors, table, usable_length, parity))){
 			len <<= 1;
 			i++;
@@ -1130,6 +1164,8 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 	for(uint32_t k = 0; k < 8; k++){ 
 	    bit = ((helper & 128) == 128);
 	    if(i > usable_block_count){
+		SAFE_DELETE(usable_colors);
+		SAFE_DELETE(usable_blocks);
 		return LSTG_E_INSUFFCAP;
 	    } else 
 	    if(blocks[usable_blocks[i]].parity != bit){
@@ -1138,7 +1174,7 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 			usable_blocks[i], k);
 		    if(!(embed_bit_to_2X2BLOCK(bit,
 				    &blocks[usable_blocks[i]], tbl_size, 
-				    usable_blocks, new_colortable, 
+				    new_colortable, 
 				    usable_colors, table, usable_length, 
 				    parity))){
 			helper <<=  1;
@@ -1159,6 +1195,8 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
 	}
     }
     if(i > usable_block_count){
+	SAFE_DELETE(usable_colors);
+	SAFE_DELETE(usable_blocks);
 	return LSTG_E_INSUFFCAP;
     }
     uint32_t used_blocks = i;
@@ -1166,16 +1204,18 @@ uint32_t frirui_embed_message_to_2X2BLOCKS(uint8_t **matrix, uint32_t rows,
     //set changes in matrix
     for(uint32_t i = 0; i < used_blocks; i++){
 	for(uint32_t j = 0; j < 4; j++){
-	    printf("matrix[%u][%u] = %u \n",
+/*	    printf("matrix[%u][%u] = %u \n",
 		  blocks[usable_blocks[i]].position_x[j],
 		  blocks[usable_blocks[i]].position_y[j],
 		  blocks[usable_blocks[i]].pixels[j]); 
-	    matrix[blocks[usable_blocks[i]].position_x[j]]
+*/	    matrix[blocks[usable_blocks[i]].position_x[j]]
 		[blocks[usable_blocks[i]].position_y[j]] = 
 		blocks[usable_blocks[i]].pixels[j];
 	    
 	}
     }
+    SAFE_DELETE(usable_colors);
+    SAFE_DELETE(usable_blocks);
     printf("...done embed message to 2BLOCKS\n");
     return LSTG_OK;   
 }
@@ -1196,25 +1236,37 @@ uint32_t copy_data(const palette_data_t *src_data, palette_data_t *stego_data)
     
     stego_data->table = (rgb_pixel_t*) malloc (sizeof(rgb_pixel_t) 
 	    * stego_data->tbl_size);
-    if(stego_data->table == 0) return LSTG_E_FRMTNOTSUPP;
+    if(stego_data->table == 0){ 
+	SAFE_DELETE(stego_data->table);
+	return LSTG_E_FRMTNOTSUPP;
+    }
     for(int i = 0; i < stego_data->tbl_size; i++){
 	stego_data->table[i] = src_data->table[i];
     }
     stego_data->unique_colors = (rgb_pixel_t*) malloc(sizeof(rgb_pixel_t) 
 	    * stego_data->unique_length);
-    if(stego_data->unique_colors == 0) return LSTG_E_FRMTNOTSUPP;
+    if(stego_data->unique_colors == 0){
+	SAFE_DELETE(stego_data->unique_colors);
+	return LSTG_E_FRMTNOTSUPP;
+    }
     for(int i = 0; i < stego_data->unique_length; i++){
 	stego_data->unique_colors[i] = src_data->unique_colors[i];
     }
     stego_data->nonunique_colors = (rgb_pixel_t*) malloc(sizeof(rgb_pixel_t) 
 	    * stego_data->nonunique_length);
-    if(stego_data->nonunique_colors == 0) return LSTG_E_FRMTNOTSUPP;
+    if(stego_data->nonunique_colors == 0){
+	SAFE_DELETE(stego_data->nonunique_colors);
+	return LSTG_E_FRMTNOTSUPP;
+    }
     for(int i = 0; i < stego_data->nonunique_length; i++){
 	stego_data->nonunique_colors[i] = src_data->nonunique_colors[i];
     }
     stego_data->img_data = (uint8_t*) malloc (sizeof(uint8_t)
 	    * (stego_data->size_x * stego_data->size_y));
-    if(stego_data->img_data == 0) return LSTG_E_FRMTNOTSUPP;
+    if(stego_data->img_data == 0){
+	SAFE_DELETE(stego_data->img_data);
+	return LSTG_E_FRMTNOTSUPP;
+    }
     for(int i = 0; i < stego_data->size_x * stego_data->size_y; i++){
 	stego_data->img_data[i] = src_data->img_data[i];
     }
@@ -1291,19 +1343,22 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
     //calculate distances
     if((error = frirui_calc_distances(src_data->table, src_data->tbl_size, 
 				    distances, dist_length)) != LSTG_OK){
-	    FAIL(error);
+	SAFE_DELETE(distances);
+	SAFE_DELETE(parity);    
+	FAIL(error);
     }
     //change parities and build "a new colortable"
     uint8_t *new_colortable = (uint8_t *) malloc (sizeof(uint8_t) 
 				* src_data->tbl_size);
     if((error = frirui_build_colortable(distances, dist_length, new_colortable,
 		    src_data->tbl_size, parity)) != LSTG_OK){
+	SAFE_DELETE(new_colortable);
+	SAFE_DELETE(parity);    
+	SAFE_DELETE(distances);
 	FAIL(error);
     }
     //distances are not longer needed
-    free(distances);
-    distances = 0;
-    
+    SAFE_DELETE(distances);
     //ready to embed a message?
     if (0 == para->method){
 	//embed in chains
@@ -1316,6 +1371,9 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 			src_data->size_x, src_data->size_y, parity, 
 			src_data->img_data,new_colortable,
 			src_data->tbl_size, src_data->table)) != LSTG_OK){
+	    SAFE_DELETE(chains);
+	    SAFE_DELETE(parity);    
+	    SAFE_DELETE(new_colortable);
 	    FAIL(error);
 	}
 	
@@ -1323,13 +1381,13 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
         uint32_t pos_to_write = 0;
 	for(uint32_t i = 0; i < num_of_chains; i++){//write changed data
 	    for(uint32_t j = 0; j < para->size; j++){
-//		if(stego_data->img_data[chains[i].id_in_stream[j]] 
-//			!= chains[i].pixels[j]){
-//		printf("index: %u : orig %u : stego %u \n", 
-//			chains[i].id_in_stream[j],
-//			stego_data->img_data[chains[i].id_in_stream[j]], 
-//			chains[i].pixels[j]);
-//		}
+		if(stego_data->img_data[chains[i].id_in_stream[j]] 
+			!= chains[i].pixels[j]){
+		    printf("index: %u : orig %u : stego %u \n", 
+			chains[i].id_in_stream[j],
+			stego_data->img_data[chains[i].id_in_stream[j]], 
+			chains[i].pixels[j]);
+		}
 		stego_data->img_data[chains[i].id_in_stream[j]]=
 		    chains[i].pixels[j];
 		pos_to_write++;
@@ -1347,10 +1405,13 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 	}
 	//clean up
 	printf("...free chains and parity\n");
-	free(chains);
-	chains = 0;  
-	free(parity);
-	parity = 0;
+	for(uint32_t i = 0; i < num_of_chains; i++){
+	    SAFE_DELETE(chains[i].pixels);
+	    SAFE_DELETE(chains[i].id_in_stream);
+	}
+	SAFE_DELETE(chains);
+	SAFE_DELETE(new_colortable);
+	SAFE_DELETE(parity);
     }else
     if(1 == para->method){//embed in 3x3 blocks
 	//initialize data for an dynamic array
@@ -1361,13 +1422,22 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 	//malloc heap for the array
 	matrix = (uint8_t **) malloc (sizeof(uint8_t*) * rows);
 	if (0 == matrix) {
-	printf("error #1 in frirui.c\n");
-	FAIL(LSTG_E_MALLOC);
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(new_colortable);
+	    SAFE_DELETE(parity);    
+	    printf("error #1 in frirui.c\n");
+	    FAIL(LSTG_E_MALLOC);
 	}
 	for (uint32_t i = 0; i < rows; i++){
 	    matrix[i] = (uint8_t *) malloc (sizeof(uint8_t) * columns);
 	    if (0 == matrix[i]){
 		printf("error #2 in frirui.c\n");
+		for(uint32_t i = 0; i < rows; i++){
+		    SAFE_DELETE(matrix[i]);
+		}
+		SAFE_DELETE(matrix);
+		SAFE_DELETE(new_colortable);
+		SAFE_DELETE(parity);    
 		FAIL(LSTG_E_MALLOC);	
 	    }
 	}
@@ -1393,7 +1463,15 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 			blocks, block_count,para->threshold, para->password, 
 			para->pwlen, parity, message, msglen, new_colortable,
 		       	src_data->tbl_size, src_data->table)) != LSTG_OK){
+	    SAFE_DELETE(blocks);
+	    for(uint32_t i = 0; i < rows; i++){
+		SAFE_DELETE(matrix[i]);
+	    }
+	    SAFE_DELETE(new_colortable);
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(parity);    
 	    FAIL(error);
+	    printf("error\n");
 	}
 	//write changed data to structs
 	i = 0;
@@ -1406,14 +1484,13 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 	    }
 	}
 	//clean the mess up
+	SAFE_DELETE(blocks);
 	for(uint32_t i = 0; i < rows; i++){
-	    free(matrix[i]);
-	    matrix[i] = 0;
+	    SAFE_DELETE(matrix[i]);
 	}
-	free(matrix);
-	matrix = 0;
-	free(parity);
-	parity = 0;
+	SAFE_DELETE(new_colortable);
+	SAFE_DELETE(matrix);
+	SAFE_DELETE(parity);
     } else
     if(2 == para->method){
 	//initialize data for an dynamic array
@@ -1424,13 +1501,22 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 	//malloc heap for the array
 	matrix = (uint8_t **) malloc (sizeof(uint8_t *) * rows);
 	if (NULL == matrix) {
-	printf("error #3 in frirui.c\n");
-	FAIL(LSTG_E_MALLOC);
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(new_colortable);
+	    SAFE_DELETE(parity);    
+	    printf("error #3 in frirui.c\n");
+	    FAIL(LSTG_E_MALLOC);
 	}
 	for (i = 0; i < rows; i++){
 	    matrix[i] = (uint8_t *) malloc (sizeof(uint8_t) * columns);
 	    if (NULL == matrix[i]){
 		printf("error #4 in frirui.c\n");
+		for(uint32_t i = 0; i < rows; i++){
+		    SAFE_DELETE(matrix[i]);
+		}
+		SAFE_DELETE(matrix);
+		SAFE_DELETE(new_colortable);
+		SAFE_DELETE(parity);    
 		FAIL(LSTG_E_MALLOC);	
 	    }
 	}
@@ -1456,6 +1542,8 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 		       src_data->size_y, blocks, block_count, para->password,
 		       para->pwlen, parity, message,msglen, new_colortable, 
 		       src_data->tbl_size, src_data->table)) != LSTG_OK){
+	    SAFE_DELETE(parity);    
+	    SAFE_DELETE(new_colortable);
 	    FAIL(error);
 	}
 	//write changed data to structs
@@ -1473,6 +1561,7 @@ uint32_t frirui_embed(const palette_data_t *src_data, palette_data_t *stego_data
 	    free(matrix[i]);
 	    matrix[i] = 0;
 	}
+	SAFE_DELETE(new_colortable);
 	free(matrix);
 	matrix = 0;
 	free(parity);
@@ -1537,6 +1626,8 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
     //calculate distances
     if((error = frirui_calc_distances(stego_data->table, stego_data->tbl_size,
 		   distances, dist_length)) != LSTG_OK){
+	SAFE_DELETE(distances);
+	SAFE_DELETE(parity);
 	FAIL(error);
     }
     //change parities and build "a new colortable"
@@ -1544,13 +1635,13 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 				* stego_data->tbl_size);
     if((error = frirui_build_colortable(distances, dist_length, new_colortable,
 		   stego_data->tbl_size, parity)) != LSTG_OK){
+	SAFE_DELETE(new_colortable);
+	SAFE_DELETE(distances);
+	SAFE_DELETE(parity);
 	FAIL(error);
     }
-    
     //distances are not longer needed
-    free(distances);
-    distances = 0;
-    
+    SAFE_DELETE(distances);
     if (0 == para->method){
 	printf("...starting extract message from chains\n"); 
 	uint32_t number_of_pixels = stego_data->size_x * stego_data->size_y;
@@ -1577,37 +1668,54 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		}
 	    }
 	}
+	SAFE_DELETE(parity);
 	if(0 != para->password || 0 != para->pwlen){
-	    uint32_t *randomised_index = (uint32_t*) 
-	    malloc (num_of_chains * sizeof(uint32_t));
-	if(randomised_index == NULL){
-	    FAIL(LSTG_E_MALLOC);
-	}
-	prng_state *state = 0;
-	if(1 == random_init(&state,para->password,para->pwlen)){
-	    FAIL(LSTG_E_MALLOC);
-	}
-	if(1 == randomize_indices(state,num_of_chains,randomised_index)){
-	    FAIL(LSTG_E_MALLOC);
-	}
-	CHAIN *helper = (CHAIN*) malloc (num_of_chains * sizeof(CHAIN));
-	for(uint32_t i = 0; i < num_of_chains; i++){
-	    helper[i].parity = chains[randomised_index[i]].parity;
-	    helper[i].pixels = (uint8_t*) malloc (para->size * sizeof(uint8_t));
-	for(uint32_t j = 0; j < para->size; j++){
-		helper[i].pixels[j] = chains[randomised_index[i]].pixels[j];
+		uint32_t *randomised_index = (uint32_t*) 
+		    malloc (num_of_chains * sizeof(uint32_t));
+	    if(randomised_index == NULL){
+		SAFE_DELETE(randomised_index);
+		for(uint32_t i = 0; i < num_of_chains; i++){
+		    SAFE_DELETE(chains[i].pixels);
+		}
+		SAFE_DELETE(chains);
+		FAIL(LSTG_E_MALLOC);
 	    }
-	}
-	for(uint32_t i = 0; i < num_of_chains; i++){
-	    chains[i].parity = helper[i].parity;
-	    for(uint32_t j = 0; j < para->size;j++){
-		chains[i].pixels[j] = helper[i].pixels[j];
+	    prng_state *state = 0;
+	    if(1 == random_init(&state,para->password,para->pwlen)){
+		SAFE_DELETE(randomised_index);
+		for(uint32_t i = 0; i < num_of_chains; i++){
+		    SAFE_DELETE(chains[i].pixels);
+		}
+		SAFE_DELETE(chains);
+		FAIL(LSTG_E_MALLOC);
 	    }
-	    free(helper[i].pixels);
-	    helper[i].pixels = 0;
-	}
-	free(helper);
-	helper = 0;
+	    if(1 == randomize_indices(state,num_of_chains,randomised_index)){
+		SAFE_DELETE(randomised_index);
+		for(uint32_t i = 0; i < num_of_chains; i++){
+		    SAFE_DELETE(chains[i].pixels);
+		}
+		SAFE_DELETE(chains);
+		FAIL(LSTG_E_MALLOC);
+	    }
+	    CHAIN *helper = (CHAIN*) malloc (num_of_chains * sizeof(CHAIN));
+	    for(uint32_t i = 0; i < num_of_chains; i++){
+		helper[i].parity = chains[randomised_index[i]].parity;
+		helper[i].pixels = (uint8_t*) malloc 
+		    (para->size * sizeof(uint8_t));
+		for(uint32_t j = 0; j < para->size; j++){
+			    helper[i].pixels[j] = 
+				chains[randomised_index[i]].pixels[j];
+		}
+	    }
+	    SAFE_DELETE(randomised_index);
+	    for(uint32_t i = 0; i < num_of_chains; i++){
+		chains[i].parity = helper[i].parity;
+		for(uint32_t j = 0; j < para->size;j++){
+		    chains[i].pixels[j] = helper[i].pixels[j];
+		}
+		SAFE_DELETE(helper[i].pixels);
+	    }
+	    SAFE_DELETE(helper);
 	}
 	for(uint32_t i = 0; i < 32; i++){
 	    if(chains[i].parity == 0){
@@ -1623,6 +1731,10 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	//initiate message
 	*message = (uint8_t*)malloc(sizeof(uint8_t) * (*msglen + 1));
 	if(*message == NULL){
+	    for(uint32_t i = 0; i < num_of_chains; i++){
+		SAFE_DELETE(chains[i].pixels);
+	    }
+	    SAFE_DELETE(chains);
 	    FAIL(LSTG_E_MALLOC); 
 	}
 	int32_t ptr_message_byte = -1;
@@ -1641,10 +1753,11 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	}
 	(*message)[*msglen] = '\0';
 	printf("...extracted message = %s \n",*message);
-	free(chains);
-	chains = 0;
-	free(parity);
-	parity = 0;
+	for(uint32_t i = 0; i < num_of_chains; i++){
+	    SAFE_DELETE(chains[i].pixels);
+	}
+	SAFE_DELETE(chains);
+	SAFE_DELETE(new_colortable);
     } 
     else 
     if(para->method == 1){
@@ -1660,12 +1773,19 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	matrix = (uint8_t **) malloc (sizeof(uint8_t*) * rows);
 	if (0 == matrix) {
 //	    printf("error #1 in frirui.c\n");
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(parity);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	for(i = 0; i < rows; i++){
 	    matrix[i] = (uint8_t *) malloc (sizeof(uint8_t) * columns);
 	    if (0 == matrix[i]){
 //		printf("error #2 in frirui.c\n");
+		for(i = 0; i < rows; i++){
+		    SAFE_DELETE(matrix[i]);
+		}
+		SAFE_DELETE(matrix);
+		SAFE_DELETE(parity);
 		FAIL(LSTG_E_MALLOC);	
 	    }
 	}
@@ -1694,6 +1814,12 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	BLOCK3X3 *blocks = (BLOCK3X3 *) malloc (sizeof(BLOCK3X3) 
 		* block_count);
 	if(blocks == 0){
+	    SAFE_DELETE(blocks);
+	    for(i = 0; i < rows; i++){
+		SAFE_DELETE(matrix[i]);
+	    }
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(parity);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	i = 0;
@@ -1713,6 +1839,10 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		}
 	    }
 	}
+	for(i = 0; i < rows; i++){
+	    SAFE_DELETE(matrix[i]);
+	}
+	SAFE_DELETE(matrix);
 	i = 0;
 	while(i < block_count){
 	    for(uint32_t l = 0; l < 9; l++){
@@ -1725,18 +1855,25 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	    blocks[i].parity = blocks[i].parity & 1;
 	    i++;
 	}
+	SAFE_DELETE(parity);
 	printf("...3BLOCKS build\n");
 	if(0 != para->password || 0 != para->pwlen){
 	uint32_t *randomised_index = (uint32_t*) 
 	    malloc (block_count * sizeof(uint32_t));
 	if(randomised_index == NULL){
+	    SAFE_DELETE(randomised_index);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	prng_state *state = 0;
 	if(1 == random_init(&state,para->password,para->pwlen)){
+	    SAFE_DELETE(randomised_index);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	if(1 == randomize_indices(state,block_count,randomised_index)){
+	    SAFE_DELETE(randomised_index);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	BLOCK3X3 *helper = (BLOCK3X3*) malloc (block_count * sizeof(BLOCK3X3));
@@ -1744,11 +1881,15 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	    helper[i].parity = blocks[randomised_index[i]].parity;
 	    helper[i].threshold = blocks[randomised_index[i]].threshold;
 	    for(uint32_t j = 0; j < 9; j++){
-		helper[i].pixels[j] = blocks[randomised_index[i]].pixels[j];
-		helper[i].position_x[j] = blocks[randomised_index[i]].position_x[j];		
-		helper[i].position_y[j] = blocks[randomised_index[i]].position_y[j];
+		helper[i].pixels[j] = 
+		    blocks[randomised_index[i]].pixels[j];
+		helper[i].position_x[j] = 
+		    blocks[randomised_index[i]].position_x[j];		
+		helper[i].position_y[j] = 
+		    blocks[randomised_index[i]].position_y[j];
 	    }
 	}
+	SAFE_DELETE(randomised_index);
 	for(uint32_t i = 0; i < block_count; i++){
 	    blocks[i].parity = helper[i].parity;
 	    blocks[i].threshold = helper[i].threshold;
@@ -1758,8 +1899,7 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		blocks[i].position_y[j] = helper[i].position_y[j];
 	    }
 	}
-	free(helper);
-	helper = 0;
+	SAFE_DELETE(helper);
 	}
 	j = 0;
 	*msglen = 0;
@@ -1792,33 +1932,41 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	//initiate message
 	*message = (uint8_t*)malloc(sizeof(uint8_t) * (*msglen));
 	if(*message == NULL){
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC); 
+	}
+	for(uint32_t i = 0; i < *msglen; i++){
+	    (*message)[i] = 0;
 	}
 	int32_t ptr_message_byte = -1;
 	uint32_t offset = j;
+	uint32_t l = 0;
 	for(k = 0; k < *msglen * 8 + offset; k++){
 	    if(blocks[j].threshold <= para->threshold){
-		if(j % 8 == 0){
+		if(l % 8 == 0){
 		    ptr_message_byte += 1;
-		    printf("j = %u , pointer changed to %i \n", j, ptr_message_byte);
+		    printf("l = %u , pointer changed to %i \n", l, ptr_message_byte);
 		}
 		if(blocks[j].parity == 0){
 		    (*message)[ptr_message_byte] <<= 1;
 		    printf("block %u : bit = 0 \n",j);
 		    j++;
+		    l++;
 		} else 
 		if(blocks[j].parity == 1){
 		    (*message)[ptr_message_byte] <<= 1;
 		    (*message)[ptr_message_byte] += 1;
 		    printf("block %u : bit = 1 \n",j);
 		    j++;
+		    l++;
 		}
-		if(j == *msglen * 8 + offset|| ptr_message_byte > *msglen){
+		if(j == *msglen * 8 + offset|| ptr_message_byte > (int32_t)*msglen){
 		    break;
 		}
 	    } else {
 		printf("block %u treshold to high \n", j);
 		j++;
+		offset++;
 	    }
 	}
 	(*message)[*msglen] = '\0';
@@ -1826,16 +1974,8 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	    printf("message[%u] = %u \n", i, (*message)[i]);
 	}
 	printf("...extracted message = %s \n", *message);
-	for(i = 0; i < rows; i++){
-	    free(matrix[i]);
-	    matrix[i] = 0;
-	}
-	free(matrix);
-	matrix = 0;
-	free(blocks);
-	blocks = 0;
-	free(parity);
-	parity = 0;	
+	SAFE_DELETE(blocks);
+	SAFE_DELETE(new_colortable);
     } 
     else
     if(para->method == 2){
@@ -1847,12 +1987,19 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	//malloc heap for the array
 	matrix = (uint8_t **) malloc (sizeof(uint8_t *) * rows);
 	if (NULL == matrix) {
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(parity);
 	    printf("error #3 in frirui.c\n");
 	    FAIL(LSTG_E_MALLOC);
 	}
 	for (i = 0; i < rows; i++){
 	    matrix[i] = (uint8_t *) malloc (sizeof(uint8_t) * columns);
 	    if (NULL == matrix[i]){
+		for(i = 0; i < rows; i++){
+		    SAFE_DELETE(matrix[i]);
+		}
+		SAFE_DELETE(matrix);
+		SAFE_DELETE(parity);
 		printf("error #4 in frirui.c\n");
 		FAIL(LSTG_E_MALLOC);	
 	    }
@@ -1876,6 +2023,12 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	BLOCK2X2 *blocks = (BLOCK2X2 *) malloc (sizeof(BLOCK2X2) 
 				    * block_count);
 	if(blocks == 0){
+	    SAFE_DELETE(blocks);
+	    for(i = 0; i < rows; i++){
+		SAFE_DELETE(matrix[i]);
+	    }
+	    SAFE_DELETE(matrix);
+	    SAFE_DELETE(parity);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	//fill 2x2 blocks
@@ -1891,6 +2044,10 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		}
 	    }
 	}
+	for(i = 0; i < rows; i++){
+	    SAFE_DELETE(matrix[i]);
+	}
+	SAFE_DELETE(matrix);
 	i = 0;
     	while(i < block_count){
 	    blocks[i].parity = 0;
@@ -1900,18 +2057,25 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	    blocks[i].parity = blocks[i].parity & 1;
  	    i++;
 	}
+	SAFE_DELETE(parity);
 	printf("...2BLOCKS build \n");
 	if(0 != para->password || 0 != para->pwlen){
 	uint32_t *randomised_index = (uint32_t*) 
 	    malloc (block_count * sizeof(uint32_t));
 	if(randomised_index == NULL){
+	    SAFE_DELETE(randomised_index);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	prng_state *state = 0;
 	if(1 == random_init(&state,para->password,para->pwlen)){
+	    SAFE_DELETE(randomised_index);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	if(1 == randomize_indices(state,block_count,randomised_index)){
+	    SAFE_DELETE(randomised_index);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	BLOCK2X2 *helper = (BLOCK2X2*) malloc (block_count * sizeof(BLOCK2X2));
@@ -1923,6 +2087,7 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		helper[i].position_y[j] = blocks[randomised_index[i]].position_y[j];
 	    }
 	}
+	SAFE_DELETE(randomised_index);
 	for(uint32_t i = 0; i < block_count; i++){
 	    blocks[i].parity = helper[i].parity;
 	    for(uint32_t j = 0; j < 4;j++){
@@ -1931,8 +2096,7 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		blocks[i].position_y[j] = helper[i].position_y[j];
 	    }
 	}
-	free(helper);
-	helper = 0;
+	SAFE_DELETE(helper);
 	}
 	//find usable 2x2 blocks
 	i = 0;
@@ -2002,29 +2166,30 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		|| new_colortable[i] == blocks[not_usable_blocks[k]].pixels[1]
 		|| new_colortable[i] == blocks[not_usable_blocks[k]].pixels[2]
 		|| new_colortable[i] == blocks[not_usable_blocks[k]].pixels[3]){
-		//farbe ungeeignet
-		not_usable_length += 1;
-		uint32_t *helper = ALLOCN(uint32_t, not_usable_length);
-		if(not_usable_colors != 0){
-		    for (uint32_t l = 0; l < not_usable_length - 1; l++){
-			helper[l] = not_usable_colors[l];
-		    }	
-		    SAFE_DELETE(not_usable_colors);
-		    not_usable_colors = ALLOCN(uint32_t, not_usable_length);
-		    for(uint32_t l = 0; l < not_usable_length - 1; l++){
-			not_usable_colors[l] = helper[l];
+		    //farbe ungeeignet
+		    not_usable_length += 1;
+		    uint32_t *helper = ALLOCN(uint32_t, not_usable_length);
+		    if(not_usable_colors != 0){
+			for (uint32_t l = 0; l < not_usable_length - 1; l++){
+			    helper[l] = not_usable_colors[l];
+			}	
+			SAFE_DELETE(not_usable_colors);
+			not_usable_colors = ALLOCN(uint32_t, not_usable_length);
+			for(uint32_t l = 0; l < not_usable_length - 1; l++){
+			    not_usable_colors[l] = helper[l];
+			}
+			not_usable_colors[j-1] = i; 
+		    } else 
+			if(not_usable_colors == 0){
+			    not_usable_colors = ALLOC(uint32_t);
+			    not_usable_colors[0] = i;
 		    }
-		    not_usable_colors[j-1] = i; 
-		} else 
-		    if(not_usable_colors == 0){
-			not_usable_colors = ALLOC(uint32_t);
-			not_usable_colors[0] = i;
-		}
-		SAFE_DELETE(helper);
-		break;
+		    SAFE_DELETE(helper);
+		    break;
 		}
 	    }
 	}
+	SAFE_DELETE(not_usable_blocks);
 	uint32_t *usable_colors = 0;
 	uint32_t usable_length = 0;
 	//find usable colors
@@ -2050,15 +2215,18 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 		usable_colors[usable_length - 1] = i;
 	    }
 	}
+	SAFE_DELETE(not_usable_colors);
 	printf("...(not) usable colors found \n");
 	//extract message length
 	i = 0;
 	j = 0;
 	*msglen = 0;
 	for(i = 0; i < 32; i++){
+/*
 	    for(uint32_t x = 0; x < 4; x++){
 		printf("pixel %u color %u parity %u \n", x, blocks[usable_blocks[j]].pixels[x], parity[blocks[usable_blocks[j]].pixels[x]]);
 	    }
+*/
 	    while(j < usable_length){
 		if(blocks[usable_blocks[j]].parity == 0){
 		    *msglen <<= 1;
@@ -2078,6 +2246,9 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	//initiate message
 	*message = (uint8_t*)malloc(sizeof(uint8_t) * (*msglen));
 	if(*message == NULL){
+	    SAFE_DELETE(message);
+	    SAFE_DELETE(usable_blocks);
+	    SAFE_DELETE(blocks);
 	    FAIL(LSTG_E_MALLOC);
 	}
 	int32_t ptr_message_byte = -1;
@@ -2108,24 +2279,10 @@ uint32_t frirui_extract(const palette_data_t *stego_data, uint8_t **message, uin
 	}
 	printf("...extracted message = %s \n", *message);
 	//clean up
-	for(i = 0; i < rows; i++){
-	    free(matrix[i]);
-	    matrix[i] = 0;
-	}
-	free(matrix);
-	matrix = 0;
-	free(usable_colors);
-	usable_colors = 0;
-	free(not_usable_colors);
-	not_usable_colors = 0;
-	free(blocks);
-	free(usable_blocks);
-	usable_blocks = 0;
-	free(not_usable_blocks);
-	not_usable_blocks = 0;
-	blocks = 0;
-	free(parity);
-	parity = 0;
+	SAFE_DELETE(blocks);
+	SAFE_DELETE(usable_blocks);
+	SAFE_DELETE(usable_colors);
+	SAFE_DELETE(new_colortable);
     }	
     return LSTG_OK;
 }
