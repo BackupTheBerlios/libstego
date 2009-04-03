@@ -29,3 +29,11 @@ ADD_CUSTOM_TARGET(setjmpfix ALL
 
 ADD_DEPENDENCIES(_libstegofile
   setjmpfix)
+
+install(TARGETS _libstego ${include_files}
+  LIBRARY DESTINATION lib)
+
+install(TARGETS _libstegofile ${include_files}
+  LIBRARY DESTINATION lib)
+
+install(FILES libstego.py libstegofile.py DESTINATION /usr/lib/python/site-packages/libstego)
