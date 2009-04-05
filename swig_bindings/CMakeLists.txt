@@ -2,8 +2,9 @@ FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 INCLUDE(FindPkgConfig)
 
-FIND_PACKAGE(PythonLibs)
+INCLUDE(FindPythonLibrary)
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+
 
 pkg_check_modules(LIBXML2 REQUIRED libxml-2.0)
 
@@ -37,4 +38,5 @@ install(TARGETS _libstego ${include_files}
 install(TARGETS _libstegofile ${include_files}
   DESTINATION /usr/lib)
 
-install(FILES libstego.py libstegofile.py DESTINATION /usr/lib/python/site-packages/libstego)
+install(FILES libstego.py libstegofile.py 
+  DESTINATION ${PYTHON_SITE_PACKAGES_DIR})
