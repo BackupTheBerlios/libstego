@@ -22,9 +22,9 @@
  *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
- 
- 
- 
+
+
+
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -43,7 +43,7 @@
 #define CEIL(val, div) ((val/div) + ((val % div) ? 1 : 0))
 
 typedef struct {
-    gsl_matrix *key_matrix;     
+    gsl_matrix *key_matrix;
     gsl_matrix *weight_matrix;
     uint8_t    *image_data;
     uint32_t   image_data_length;
@@ -76,11 +76,11 @@ void matrix_print(const gsl_matrix *matrix)
  * Function that returns a zeroed matrix the size of an image block
  * @param *context a struct that contains everything that describes
  * the current embed/extract operation
- * @return a zeroed matrix the size of an image block. The matrix is 
+ * @return a zeroed matrix the size of an image block. The matrix is
  * allocated inside the function.
  */
 
-gsl_matrix *empty_block(cpt_state *context) 
+gsl_matrix *empty_block(cpt_state *context)
 {
     return gsl_matrix_calloc(context->block_height, context->block_width);
 }
@@ -94,7 +94,7 @@ gsl_matrix *empty_block(cpt_state *context)
  * @return LSTG_OK if the parameters are in order, LSTG_E_INVALIDPARAM
  * otherwise
  */
-uint32_t cpt_check_params(const rgb_data_t *src_data, const cpt_parameter *para) 
+uint32_t cpt_check_params(const rgb_data_t *src_data, const cpt_parameter *para)
 {
     uint32_t m = para->block_width;
     uint32_t n = para->block_height;
@@ -128,7 +128,7 @@ void setup_key_matrix(cpt_state *context)
 	    gsl_matrix_set(context->key_matrix, y, x, element);
 	    count = (count + 1) % 32;
 	}
-    }	    
+    }
 }
 
 /**
@@ -141,7 +141,7 @@ void setup_weight_matrix(cpt_state *context)
     uint32_t matrix_elements = context->block_width * context->block_height;
     uint32_t *shufflevector = (uint32_t*) malloc(sizeof(uint32_t) * matrix_elements);
     uint32_t mod = pow(context->r, 2) - 1;
-    
+
     printf("r:%d, matrix_elements:%d", context->r, matrix_elements);
     context->weight_matrix = empty_block(context);
     for (uint32_t i=0; i < matrix_elements; i++) {
@@ -170,15 +170,15 @@ void setup_weight_matrix(cpt_state *context)
  * worker function for get_block and set_block.
  */
 uint32_t getset_block(cpt_state *context, gsl_matrix *block, uint32_t index, uint8_t mode)
-{ 
+{
     uint32_t width_in_blocks = context->image_width / context->block_width;
     uint32_t x = index % width_in_blocks;
     uint32_t y = index / width_in_blocks;
     uint32_t block_start_row = y * context->block_height;
     uint32_t block_start_col = x * context->block_width;
-    for (uint32_t ix = block_start_col; ix < block_start_col + context->block_width; 
+    for (uint32_t ix = block_start_col; ix < block_start_col + context->block_width;
 	 ++ix) {
-        for (uint32_t iy = block_start_row; 
+        for (uint32_t iy = block_start_row;
 	     iy < block_start_row + context->block_height; ++iy) {
 	    uint32_t row = iy * context->image_width / 8 ;
 	    uint32_t column = ix/8;
@@ -188,7 +188,7 @@ uint32_t getset_block(cpt_state *context, gsl_matrix *block, uint32_t index, uin
 		gsl_matrix_set(block, iy-block_start_row, ix-block_start_col, pixel);
 	    }
 	    else {
-		uint8_t val = (uint8_t) gsl_matrix_get(block, iy-block_start_row, 
+		uint8_t val = (uint8_t) gsl_matrix_get(block, iy-block_start_row,
 						       ix-block_start_col);
 		uint8_t *byte = &context->image_data[row + column];
 		if (val == 1) {
@@ -197,7 +197,7 @@ uint32_t getset_block(cpt_state *context, gsl_matrix *block, uint32_t index, uin
 		else {
 		    *byte = *byte & (~bit);
 		}
-	    }	       
+	    }
         }
     }
     return LSTG_OK;
@@ -247,7 +247,7 @@ void select_bits(cpt_state *context, const rgb_data_t *image, uint32_t mode)
     context->image_data = (uint8_t*) malloc(sizeof(uint8_t) * CEIL(length, 8) + 1);
     for (uint32_t i = 0; i < length; ++i) {
 	if( !(i%8) ) {
-	    
+
 	    context->image_data[i/8] = 0;
 	}
 	uint8_t bit = 1 & image->data[i/3].rgb[chan];
@@ -276,7 +276,7 @@ void print_image_data_binary(cpt_state *context)
 	    printf("\n");
 	    r = 0;
 	}
-	
+
     }
     printf("\n");
 }
@@ -289,7 +289,7 @@ void print_image_data_binary(cpt_state *context)
  * @param *dst_image the new image data (must be allocated)
  * @param mode not used yet
  */
-void integrate_bits(cpt_state *context, const rgb_data_t *src_image, 
+void integrate_bits(cpt_state *context, const rgb_data_t *src_image,
 		    rgb_data_t *dst_image, uint32_t mode)
 {
     uint32_t length = context->image_data_length;
@@ -298,7 +298,7 @@ void integrate_bits(cpt_state *context, const rgb_data_t *src_image,
     dst_image->size_y = src_image->size_y;
     //print_image_data_binary(context);
     for (uint32_t i = 0; i < length; ++i) {
-	//printf("%d\n", i);	
+	//printf("%d\n", i);
 	if(!chan) {
 	    memcpy(&dst_image->data[i/3], &src_image->data[i/3], sizeof(rgb_pixel_t));
 	}
@@ -313,9 +313,9 @@ void integrate_bits(cpt_state *context, const rgb_data_t *src_image,
                 (*dst_pixel)--;
             }
         }
-            
-        
-            
+
+
+
         //printf("embedding %d in %d ->", pixel & 1, dst_image->data[i/3].rgb[chan]);
 	//dst_image->data[i/3].rgb[chan] = dst_image->data[i/3].rgb[chan] & pixel;
 	//printf("%d\n", dst_image->data[i/3].rgb[chan]);
@@ -398,7 +398,7 @@ uint32_t block_weight_by_index(cpt_state *context, uint32_t block_index)
     gsl_matrix_free(block);
     return weight;
 }
- 
+
 /**
  * Find the coefficient to select the bits that have to be flipped
  * @param *context a struct that contains everything that describes
@@ -411,7 +411,7 @@ uint32_t block_weight_by_index(cpt_state *context, uint32_t block_index)
  * @param *w1 the second weight component (used as return value)
  * @return 0 on success 1 on error
  */
-uint32_t find_h(cpt_state *context, gsl_matrix *weight_adjust_set, uint32_t diff, uint32_t *w0, 
+uint32_t find_h(cpt_state *context, gsl_matrix *weight_adjust_set, uint32_t diff, uint32_t *w0,
 		 uint32_t *w1)
 {
     uint32_t max_h = pow(2, context->r)-1;
@@ -452,7 +452,7 @@ void flip_bit_in_block(cpt_state *context, gsl_matrix *block, uint32_t index)
  * @param *block the image block
  * @param target_weight the message block
  */
-uint32_t adjust_block_weight(cpt_state *context, gsl_matrix *block, 
+uint32_t adjust_block_weight(cpt_state *context, gsl_matrix *block,
 			      uint32_t target_weight)
 {
     uint32_t max_weight = pow(2,context->r);
@@ -493,7 +493,7 @@ uint32_t adjust_block_weight(cpt_state *context, gsl_matrix *block,
 	    printf("tried to embed a diff of %d\n", diff);
 	    matrix_print(weight_adjust_set);
 	} else {
-	    printf("embedding %d in a block with weight %d (diff %d)\n", 
+	    printf("embedding %d in a block with weight %d (diff %d)\n",
 		   target_weight, weight, diff);
 	    for(uint32_t j=0; j<2; ++j) {
 		if(w[j] != 0) {
@@ -508,7 +508,7 @@ uint32_t adjust_block_weight(cpt_state *context, gsl_matrix *block,
     }
     uint32_t newweight = block_weight(context, block);
     if (newweight != target_weight) {
-	printf("============================\n ERROR: Blockweight should be %d, but is %d\n", 
+	printf("============================\n ERROR: Blockweight should be %d, but is %d\n",
 	       target_weight, newweight);
     }
     gsl_matrix_free(weight_adjust_set);
@@ -519,12 +519,12 @@ uint32_t adjust_block_weight(cpt_state *context, gsl_matrix *block,
 /**
  * Function to emded a single message data block into the image data.
  * @param *context a struct that contains everything that describes
- * the current embed/extract operation 
+ * the current embed/extract operation
  * @param block the index of the message/data block to be embedded
  * @param *message the message to be embedded into the image
  * @return 0 or errorcode on failure
  */
-uint32_t cpt_embed_block(cpt_state *context, uint32_t block, uint8_t *message) 
+uint32_t cpt_embed_block(cpt_state *context, uint32_t block, uint8_t *message)
 {
     uint32_t msg_block = get_msg_block(message, block, context->r);
     gsl_matrix *workblock = empty_block(context);
@@ -535,20 +535,19 @@ uint32_t cpt_embed_block(cpt_state *context, uint32_t block, uint8_t *message)
     return LSTG_OK;
 }
 
- 
-	
+
+
 
 /**
 * Embeds a message in a color-image using CPT.
 * It uses two key matrices to embed a secret message into the lsbs of an rgb-bitmap
-* 
+*
 * @param *src_data a struct for one-bit-color-data to provide the original image
 * @param *stego_data a struct for one-bit-color-data to return the steganogram
 * @param *message returnpointer for the extracted message
 * @param msglen the length of the message
 * @param *para additional parameters for CPT, including passphrase
 * @return an errorcode or 0 if success
-* @todo implement
 */
 uint32_t cpt_embed(const rgb_data_t *src_data, rgb_data_t *stego_data,
                   const uint8_t *message, const int32_t msglen, const cpt_parameter *para)
@@ -622,7 +621,7 @@ uint32_t get_message_length(cpt_state *context)
 	}
 	set_msg_block((uint8_t*)&messagelength, msgbits, i, context->r);
     }
-    return messagelength;	
+    return messagelength;
 }
 
 
@@ -635,7 +634,6 @@ uint32_t get_message_length(cpt_state *context)
 * @param msglen the length of the message
 * @param *para additional parameters for CPT including passphrase
 * @return an errorcode or 0 if success
-* @todo implement
 */
 uint32_t cpt_extract(const rgb_data_t *stego_data, uint8_t **message,
                     uint32_t *msglen, const cpt_parameter *para)
@@ -694,7 +692,6 @@ uint32_t cpt_extract(const rgb_data_t *stego_data, uint8_t **message,
 * @param *stego_data a struct for one-bit-color-data containing the steganogram
 * @param *para additional parameters for CPT including passphrase
 * @return length of embedded message
-* @todo implement
 */
 uint32_t cpt_get_message_length(const rgb_data_t *stego_data,
                                const cpt_parameter *para,

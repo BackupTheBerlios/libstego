@@ -19,6 +19,7 @@
  *  Copyright 2008 2009 by Jan C. Busch, René Frerichs, Lars Herrmann,
  *  Matthias Kloppenborg, Marko Krause, Christian Kuka, Sebastian Schnell,
  *  Ralf Treu.
+ *  Author: Rene Frerichs
  *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
@@ -50,17 +51,17 @@
 uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
  		 uint8_t *message, uint8_t msglen, eh_parameter *para)
 {
+    printf("Embedding-process started\n");
     uint8_t  channels = src_data->num_channels;
     uint32_t num_samples = src_data->size;
 
     //check the size of the cover, if the message will fit in
-    printf("check if messagelen suits to cover\n");
+    printf("-> check if messagelen suits to cover\n");
     uint32_t maxsize = (uint32_t)floor(src_data->size/para->block_size)/8;
     if (maxsize < msglen+1) {
         FAIL(LSTG_E_INSUFFCAP);
     }
 
-    printf("initiate stego_data\n");
     //initiate stego_data
     stego_data->num_channels = channels;
     stego_data->size = num_samples;
@@ -85,7 +86,8 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
     one_echo.num_channels = channels;
     one_echo.size = num_samples;
     //allocate enough memory to hold a copy of the samples
-    one_echo.data = (int16_t**)malloc(sizeof(int16_t*) * src_data->num_channels * src_data->size);
+    one_echo.data = (int16_t**)malloc(sizeof(int16_t*) 
+        * src_data->num_channels * src_data->size);
     // copy all samples from src to copy
     for (i = 0; i < channels; i++) {
         one_echo.data[i] = (int16_t*)malloc(sizeof(int16_t)*num_samples);
@@ -101,7 +103,8 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
     zero_echo.num_channels = channels;
     zero_echo.size = num_samples;
     //allocate enough memory to hold a copy of the samples
-    zero_echo.data = (int16_t**)malloc(sizeof(int16_t*) * src_data->num_channels * src_data->size);
+    zero_echo.data = (int16_t**)malloc(sizeof(int16_t*) 
+        * src_data->num_channels * src_data->size);
     // copy all samples from src to copy
     for (i = 0; i < channels; i++) {
         zero_echo.data[i] = (int16_t*)malloc(sizeof(int16_t)*num_samples);
@@ -124,7 +127,8 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
     mix_signal.num_channels = channels;
     mix_signal.size = num_samples;
     //allocate enough memory to hold a copy of the samples
-    mix_signal.data = (int16_t**)malloc(sizeof(int16_t*) * src_data->num_channels * src_data->size);
+    mix_signal.data = (int16_t**)malloc(sizeof(int16_t*) 
+        * src_data->num_channels * src_data->size);
     // copy all samples from src to copy
     for (i = 0; i < channels; i++) {
         mix_signal.data[i] = (int16_t*)malloc(sizeof(int16_t)*num_samples);
@@ -143,7 +147,8 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
     inverse_mix_signal.num_channels = channels;
     inverse_mix_signal.size = num_samples;
     //allocate enough memory to hold a copy of the samples
-    inverse_mix_signal.data = (int16_t**)malloc(sizeof(int16_t*) * src_data->num_channels * src_data->size);
+    inverse_mix_signal.data = (int16_t**)malloc(sizeof(int16_t*) 
+        * src_data->num_channels * src_data->size);
     // copy all samples from src to copy
     for (i = 0; i < channels; i++) {
     inverse_mix_signal.data[i] = (int16_t*)malloc(sizeof(int16_t)*num_samples);
@@ -160,7 +165,8 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
 
     //the mix-signals are filled with values representing the 
     //secret message.
-    eh_generate_mix(&mix_signal, &inverse_mix_signal, message, msglen, para->block_size);
+    eh_generate_mix(&mix_signal, &inverse_mix_signal, message, msglen, 
+                    para->block_size);
 
     //the steganogramm-signal is mixed out of the echo signals
     eh_mix_echoes(stego_data, zero_echo, 
@@ -185,7 +191,7 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
     SAFE_DELETE(one_echo.data);
     SAFE_DELETE(mix_signal.data);
     SAFE_DELETE(inverse_mix_signal.data);
-
+    printf("-> Embedding-process finished\n");
     return LSTG_OK;
 }
 
@@ -203,6 +209,7 @@ uint8_t eh_embed(const wav_data_t *src_data, wav_data_t *stego_data,
 */
 uint32_t eh_generate_echo(wav_data_t *echo, uint32_t offset, float amplitude)
 {
+    printf("-> creating echo-signals\n");
     uint32_t c;
     uint32_t i;
     int16_t maxint = 32767;
@@ -216,7 +223,8 @@ uint32_t eh_generate_echo(wav_data_t *echo, uint32_t offset, float amplitude)
             pos=(echo->data[c][i]>0)?(echo->data[c][i]):(echo->data[c][i]*-1);
             max_faktor = 1-(double)pos/(double)maxint;
             if(h>=0){
-                 echo->data[c][i] = 1*echo->data[c][i] + max_faktor * amplitude * echo->data[c][i-offset];
+                 echo->data[c][i] = 1*echo->data[c][i] + 
+                     max_faktor * amplitude * echo->data[c][i-offset];
             }
             else{
                 echo->data[c][i] = 1*echo->data[c][i];
@@ -246,9 +254,11 @@ uint32_t eh_generate_echo(wav_data_t *echo, uint32_t offset, float amplitude)
 *
 * @return LSTG_OK on success, LSTG_ERROR if there was an error.
 */
-uint32_t eh_generate_mix(wav_data_t *mix_signal, wav_data_t *inverse_mix_signal, 
-                          uint8_t *message, uint8_t msglen, uint32_t blocksize)
+uint32_t eh_generate_mix(wav_data_t *mix_signal, 
+                         wav_data_t *inverse_mix_signal, 
+                         uint8_t *message, uint8_t msglen, uint32_t blocksize)
 {
+    printf("-> creating mix-signals\n");
     uint32_t c;
     uint8_t i;
     uint32_t k;
@@ -312,12 +322,14 @@ uint32_t eh_mix_echoes(wav_data_t *stego_signal, wav_data_t zero_echo,
                         wav_data_t one_echo, wav_data_t mix_signal,
                         wav_data_t inverse_mix_signal)
 {
+    printf("-> mixing steganogram\n");
     uint32_t c;
     uint32_t i;
     for (c = 0; c < stego_signal->num_channels; c++) {
         for (i = 0; i < stego_signal->size; i++) {
-            stego_signal->data[c][i] =mix_signal.data[c][i]*zero_echo.data[c][i]
-            + inverse_mix_signal.data[c][i]*one_echo.data[c][i];
+            stego_signal->data[c][i] = mix_signal.data[c][i] 
+                * zero_echo.data[c][i]
+                + inverse_mix_signal.data[c][i]*one_echo.data[c][i];
         }
     }
     return LSTG_OK;
@@ -358,7 +370,6 @@ uint32_t eh_get_message_length(wav_data_t *stego_data, eh_parameter *para)
     //number of bits representing the messagelength
     uint32_t num_bits = 8;
 
-
     for (i = 0; i<num_bits;i++){
         for (b = 0; b < block_size; b++) {
             sum_zero = stego_data->data[0][(i*block_size)+b] * 
@@ -367,7 +378,6 @@ uint32_t eh_get_message_length(wav_data_t *stego_data, eh_parameter *para)
 	    sum_one = stego_data->data[0][(i*block_size)+b] *
                 stego_data->data[0][(i*block_size)+b+para->one_offset];
             erg_one = erg_one + (double)sum_one/block_size;
-
         }
         erg_zero=(erg_zero>0)?(erg_zero):(erg_zero*-1);
         erg_one=(erg_one>0)?(erg_one):(erg_one*-1);
@@ -404,14 +414,20 @@ uint32_t eh_get_message_length(wav_data_t *stego_data, eh_parameter *para)
 uint8_t eh_extract(wav_data_t *stego_data, uint8_t 
                    **message, uint8_t *msglen, eh_parameter *para) 
 {
+    printf("Extracting-process started\n");
     uint32_t capacity = 0;
+
+    printf("-> extracting messagelength\n");
     eh_check_capacity(stego_data, para, &capacity);
     *msglen = eh_get_message_length(stego_data, para);
     if(*msglen>=capacity){
         FAIL(LSTG_E_INSUFFCAP);
     }
+    printf("-> extracting message\n");
     eh_auto_correlate(stego_data, para, msglen, message);
+    printf("-> Extracting-process finished\n");
     return LSTG_OK;
+
 }
 
 
@@ -435,8 +451,8 @@ uint8_t eh_extract(wav_data_t *stego_data, uint8_t
 uint32_t eh_auto_correlate(wav_data_t *stego_data, 
                    eh_parameter *para, uint8_t *msglen, uint8_t **message)
 {
-    printf("begin of autocorrelation\n");
-    uint32_t block_size = para->block_size;
+    printf("-> autocorrelation\n");
+    uint32_t b_size = para->block_size;
 
     //index variables
     uint32_t i = 0;
@@ -452,18 +468,20 @@ uint32_t eh_auto_correlate(wav_data_t *stego_data,
     //Initiate message
     *message = (uint8_t*)malloc(sizeof(uint8_t) * *msglen);
 
-    uint32_t msg_samples = 8*block_size;
+    uint32_t msg_s = 8 * b_size;
 
     for (i = 0; i<(*msglen);i++){
         (*message)[i] = 0;
         for (k = 0; k<8;k++){
-            for (b = 0; b < block_size; b++) {
-	        sum_one = stego_data->data[0][msg_samples+(i*block_size*8)+(k*block_size)+b] 
-                * stego_data->data[0][msg_samples+(i*block_size*8)+(k*block_size)+b+para->one_offset];
-                erg_one = erg_one + (double)sum_one/block_size;
-		sum_zero = stego_data->data[0][msg_samples+(i*block_size*8)+(k*block_size)+b] 
-                * stego_data->data[0][msg_samples+(i*block_size*8)+(k*block_size)+b+para->zero_offset];
-                erg_zero = erg_zero + (double)sum_zero/block_size;
+            for (b = 0; b < b_size; b++) {
+	        sum_one = stego_data->data[0][msg_s+(i*b_size*8)+(k*b_size)+b] 
+                * stego_data->data[0]
+                [msg_s+(i*b_size*8)+(k*b_size)+b+para->one_offset];
+                erg_one = erg_one + (double)sum_one/b_size;
+		sum_zero = stego_data->data[0][msg_s+(i*b_size*8)+(k*b_size)+b] 
+                * stego_data->data[0]
+                [msg_s+(i*b_size*8)+(k*b_size)+b+para->zero_offset];
+                erg_zero = erg_zero + (double)sum_zero/b_size;
             }
             erg_one=(erg_one>0)?(erg_one):(erg_one*-1);
             erg_zero=(erg_zero>0)?(erg_zero):(erg_zero*-1);
@@ -475,7 +493,6 @@ uint32_t eh_auto_correlate(wav_data_t *stego_data,
                 else {
                     (*message)[i] = (*message)[i] + 0;
                 }
-                printf("0");
 	    } 
 	    else{
                 if (k != 7) {            
@@ -484,7 +501,6 @@ uint32_t eh_auto_correlate(wav_data_t *stego_data,
                 else{
                     (*message)[i] = (*message)[i] + 1;
                 }
-                printf("1");
 	    }
             erg_one = 0;
             erg_zero = 0;
@@ -511,7 +527,7 @@ uint32_t eh_auto_correlate(wav_data_t *stego_data,
 uint32_t eh_check_capacity(const wav_data_t *src_data, 
                const eh_parameter *para, uint32_t *capacity)
 {
-    *capacity = (uint32_t)floor(src_data->size/para->block_size)-8;
+    *capacity = (uint32_t)floor(src_data->size/para->block_size) - 8;
     return LSTG_OK;
 
 }

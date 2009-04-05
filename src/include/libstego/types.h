@@ -22,9 +22,9 @@
  *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
- 
- 
- 
+
+
+
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
@@ -310,7 +310,6 @@ typedef struct {
 
 /**
 * Data structure for F5-Parameter
-* @todo implement
 */
 typedef struct {
     uint8_t *password;
@@ -319,7 +318,6 @@ typedef struct {
 
 /**
 * Data structure for FriRui-Parameter
-* @todo implement
 */
 typedef struct {
     uint32_t method;
@@ -333,7 +331,6 @@ typedef struct {
 * Data structure for GifShuffle-Parameter
 * method be 1 if normal gifshuffle is used
 * or 2 if used for the second time in adv gifshuffle
-* @todo implement
 */
 typedef struct {
     uint32_t method;
@@ -341,20 +338,6 @@ typedef struct {
     uint32_t pwlen;
     palette_data_t *adv_pal;
 } gifshuffle_parameter;
-
-/**
-* Data structure for MB2-Parameter
-* @todo implement
-*/
-typedef struct {
-} mb2_parameter;
-
-/**
-* Data structure for PDFShuffle-Parameter
-* @todo implement
-*/
-typedef struct {
-} pdf_parameter;
 
 /**
 * Data structure for Phasecoding-Parameter
@@ -370,7 +353,6 @@ typedef struct {
 
 /**
 * Data structure for PQ-Parameter
-* @todo implement
 */
 typedef struct {
     //Password
@@ -386,23 +368,11 @@ typedef struct {
 
 /**
 * Data structure for Sort/Unsort-Parameter
-* @todo implement
 */
 typedef struct {
     uint8_t *password;
     uint32_t pwlen;
 } sortunsort_parameter;
-
-/**
-* Data structure for T-Parameter
-* @todo implement
-*/
-typedef struct {
-} t_parameter;
-
-typedef struct {
-} pc_parameter_t;
-
 
 
 enum LSB_SELECT_MODE {

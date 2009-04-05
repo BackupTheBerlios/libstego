@@ -22,9 +22,9 @@
  *
  *  For more info visit <http://parsys.informatik.uni-oldenburg.de/~stego/>
  */
- 
- 
- 
+
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,7 +67,6 @@ void io_jpeg_error_exit(j_common_ptr cinfo) {
  * @param *jpeg_data a struct to return the jpegdata
  * @param *jpeg_struct a struct provided by the jpeg-library to hold the original image
  * @return an errorcode or 0 if success
- * @todo implement
  */
 uint32_t io_jpeg_read(const uint8_t *filename, jpeg_data_t *jpeg_data,
         jpeg_internal_data_t *jpeg_struct) {
@@ -126,7 +125,6 @@ uint32_t io_jpeg_read(const uint8_t *filename, jpeg_data_t *jpeg_data,
  * @param *jpeg_struct a struct provided by the jpeg-library to hold the original image
  * @param *jpeg_data a struct to give the changed jpegdata (steganogram)
  * @return an errorcode or 0 if success
- * @todo implement
  */
 uint32_t io_jpeg_integrate(jpeg_internal_data_t *jpeg_struct, const jpeg_data_t *jpeg_data) {
     FILE *file;
@@ -201,7 +199,7 @@ uint32_t io_jpeg_integrate(jpeg_internal_data_t *jpeg_struct, const jpeg_data_t 
     jpeg_destroy_decompress(jpeg_struct->dinfo);
     SAFE_DELETE(jpeg_struct->dinfo);
     fclose(file);
-    
+
 }
 
 /**
@@ -210,7 +208,6 @@ uint32_t io_jpeg_integrate(jpeg_internal_data_t *jpeg_struct, const jpeg_data_t 
  * @param *filename the path and filename of the jpeg-file
  * @param *jpeg_struct a struct provided by the jpeg-library to hold the original image
  * @return an errorcode or 0 if success
- * @todo implement
  */
 uint32_t io_jpeg_write(const uint8_t *filename, jpeg_internal_data_t *jpeg_struct) {
     FILE *file = NULL;
