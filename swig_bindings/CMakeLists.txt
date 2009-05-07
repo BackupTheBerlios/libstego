@@ -3,12 +3,10 @@ INCLUDE(${SWIG_USE_FILE})
 INCLUDE(FindPkgConfig)
 
 INCLUDE(FindPythonLibrary)
+PKG_CHECK_MODULES(LIBXML2 REQUIRED libxml-2.0)
+
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
-
-
-pkg_check_modules(LIBXML2 REQUIRED libxml-2.0)
-
-include_directories(${LIBXML2_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${LIBXML2_INCLUDE_DIRS})
 
 
 INCLUDE_DIRECTORIES(../src/include
@@ -17,10 +15,13 @@ INCLUDE_DIRECTORIES(../src/include
 #SET(CMAKE_SWIG_FLAGS "")
 
 SWIG_ADD_MODULE(libstego python libstego.i)
-SWIG_LINK_LIBRARIES(libstego ${PYTHON_LIBRARIES})
+SWIG_LINK_LIBRARIES(libstego ${PYTHON_LIBRARIES} 
+  ${CMAKE_SOURCE_DIR}/src/libstego/libstego.so)
 
 SWIG_ADD_MODULE(libstegofile python libstegofile.i)
-SWIG_LINK_LIBRARIES(libstegofile ${PYTHON_LIBRARIES})
+SWIG_LINK_LIBRARIES(libstegofile ${PYTHON_LIBRARIES} 
+  ${CMAKE_SOURCE_DIR}/src/libstegofile/libstegofile.so)
+
 
 # Fix libpng/setjmp annoyance
 
@@ -32,11 +33,11 @@ ADD_DEPENDENCIES(_libstegofile
   setjmpfix)
 
 
-install(TARGETS _libstego ${include_files}
+INSTALL(TARGETS _libstego ${include_files}
   DESTINATION /usr/lib)
 
-install(TARGETS _libstegofile ${include_files}
+INSTALL(TARGETS _libstegofile ${include_files}
   DESTINATION /usr/lib)
 
-install(FILES libstego.py libstegofile.py 
+INSTALL(FILES libstego.py libstegofile.py 
   DESTINATION ${PYTHON_SITE_PACKAGES_DIR})

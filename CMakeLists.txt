@@ -29,18 +29,19 @@ SET(CPACK_SOURCE_IGNORE_FILES
 
 INCLUDE(CPack)
 
+
 OPTION(BUILD_LIBSTEGO "build libstego library" ON)
 OPTION(BUILD_LIBSTEGOFILE "build libstegofile library" ON)
 OPTION(BUILD_BINDINGS "build swig bindings" ON)
 
 IF(BUILD_LIBSTEGO)
   add_subdirectory (src/libstego)
-ENDIF()
+ENDIF(BUILD_LIBSTEGO)
 
 IF(BUILD_LIBSTEGOFILE)
   add_subdirectory(src/libstegofile)
-ENDIF()
+ENDIF(BUILD_LIBSTEGOFILE)
 
-IF(BUILD_BINDINGS)
+if(BUILD_BINDINGS)              
   add_subdirectory (swig_bindings)
-ENDIF()
+ENDIF(BUILD_BINDINGS)

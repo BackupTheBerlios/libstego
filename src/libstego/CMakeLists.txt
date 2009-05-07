@@ -1,24 +1,20 @@
+include(FindPkgConfig)
 
 file(GLOB source_files *.c)
 
-find_package(gsl REQUIRED)
+pkg_check_modules(GSL REQUIRED gsl)
+#find_package(gslcblas REQUIRED)
 
-
-
-
+file(GLOB source_files *.c)
 include_directories(include/ ../include 
-  ${gsl_INCLUDE_DIRS})
+  ${GSL_INCLUDE_DIRS})
 
-set(LIBS ${LIBS} ${gsl_LIBRARIES})
+set(LIBS ${LIBS} ${GSL_LIBRARIES})
 
 
 add_library(stego SHARED ${source_files})
-
 target_link_libraries(stego ${LIBS})
-
 add_definitions(-std=c99)
-
-
 
 install(TARGETS stego ${include_files}
   LIBRARY DESTINATION lib)

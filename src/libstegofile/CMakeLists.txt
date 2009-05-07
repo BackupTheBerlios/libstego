@@ -4,17 +4,18 @@ INCLUDE(FindPkgConfig)
 file(GLOB source_files *.c)
 
 pkg_check_modules(LIBXML2 REQUIRED libxml-2.0)
+pkg_check_modules(SNDFILE REQUIRED sndfile)
 
-find_package(GIF)
-find_package(PNG)
-find_package(JPEG)
-find_package(Sndfile)
+find_package(GIF REQUIRED)
+find_package(PNG REQUIRED)
+find_package(JPEG REQUIRED)
 
 set(LIBS ${LIBS} 
   ${GIF_LIBRARIES}
   ${PNG_LIBRARIES}
   ${JPEG_LIBRARIES}
-  ${Sndfile_LIBRARIES})
+  ${SNDFILE_LIBRARIES}
+  ${LIBXML2_LIBRARIES})
 
 
 include_directories(include/ ../include 
@@ -22,7 +23,7 @@ include_directories(include/ ../include
   ${GIF_INCUDE_DIRS}
   ${PNG_INCUDE_DIRS}
   ${JPEG_INCUDE_DIRS}
-  ${Sndfile_INCUDE_DIRS})
+  ${SNDFILE_INCUDE_DIRS})
 
 
 add_library(stegofile SHARED ${source_files})
