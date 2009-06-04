@@ -1,0 +1,42 @@
+INSTALLATION
+------------
+Make sure you habe installed cmake, libpng, libjpeg, giflib, libxml2, libgmp, libsndfile and libgsl.
+
+libstego
+--------
+To compile libstego from source-archive extract the libstego-0.90.tar.bz2 and run there
+
+> cmake -DBUILD_LIBSTEGO:BOOL=ON -DBUILD_LIBSTEGOFILE:BOOL=OFF -DBUILD_BINDINGS:BOOL=OFF .
+> make
+
+To install libstego run
+
+> make install
+
+as root.
+
+libstegofile
+------------
+To compile libstegofile from source-archive extract the libstegofile-0.90.tar.bz2 to the same directory as ibstego-0.90.tar.bz2 and run there
+
+> cmake -DBUILD_LIBSTEGO:BOOL=OFF -DBUILD_LIBSTEGOFILE:BOOL=ON -DBUILD_BINDINGS:BOOL=OFF .
+> make
+
+To install libstego run
+
+> make install
+
+as root.
+
+python-bindings
+---------------
+To compile the python bindings from source-archive extract the libstego-python-0.90.tar.bz2 to the same directory as ibstego-0.90.tar.bz2 libstegofile-0.90.tar.bz2 and and run there
+
+> cmake -DBUILD_LIBSTEGO:BOOL=OFF -DBUILD_LIBSTEGOFILE:BOOL=OFF -DBUILD_BINDINGS:BOOL=ON .
+> make
+
+To install libstego run
+
+> make install
+
+as root.
