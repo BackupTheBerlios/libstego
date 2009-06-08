@@ -34,6 +34,18 @@
 #include <stdlib.h>
 #include <gif_lib.h>
 
+/* fix for Fedora, which for some reason has no GifWord... */
+#ifndef GifWord
+#ifdef _GBA_OPTMEM
+    typedef unsigned short GifPrefixType;
+    typedef short GifWord;
+#else
+    typedef unsigned int GifPrefixType;
+    typedef int GifWord;
+#endif
+#endif // GifWord
+
+
 typedef struct {
     GifWord SWidth, SHeight,        /* Screen dimensions. */
 	SColorResolution,         /* How many colors can we generate? */
