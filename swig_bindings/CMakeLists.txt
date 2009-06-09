@@ -34,10 +34,10 @@ ADD_DEPENDENCIES(_libstegofile
 
 
 INSTALL(TARGETS _libstego ${include_files}
-  DESTINATION /usr/lib)
+  DESTINATION ${PYTHON_SITE_PACKAGES_DIR})
 
 INSTALL(TARGETS _libstegofile ${include_files}
-  DESTINATION /usr/lib)
+  DESTINATION ${PYTHON_SITE_PACKAGES_DIR})
 
 INSTALL(FILES libstego.py libstegofile.py 
   DESTINATION ${PYTHON_SITE_PACKAGES_DIR})
