@@ -15,27 +15,33 @@ To install libstego run
 
 as root.
 
-libstegofile
-------------
-To compile libstegofile from source-archive extract the libstegofile-0.90.tar.bz2 to the same directory as ibstego-0.90.tar.bz2 and run there
+libstego + libstegofile
+-----------------------
+To compile libstegofile from source-archive extract the libstego+file-0.90.tar.bz2 and run there
 
-> cmake -DBUILD_LIBSTEGO:BOOL=OFF -DBUILD_LIBSTEGOFILE:BOOL=ON -DBUILD_BINDINGS:BOOL=OFF .
+> cmake -DBUILD_LIBSTEGO:BOOL=ON -DBUILD_LIBSTEGOFILE:BOOL=ON -DBUILD_BINDINGS:BOOL=OFF .
 > make
 
-To install libstego run
+To install libstego and libstegofile run
 
 > make install
 
 as root.
 
-python-bindings
----------------
-To compile the python bindings from source-archive extract the libstego-python-0.90.tar.bz2 to the same directory as ibstego-0.90.tar.bz2 libstegofile-0.90.tar.bz2 and and run there
+libstego + libstegofile + python-bindings + gui
+-----------------------------------------------
+To compile all libraries and the python bindings from source-archive extract the libstego+file+gui-0.90.tar.bz2 and run there
 
-> cmake -DBUILD_LIBSTEGO:BOOL=OFF -DBUILD_LIBSTEGOFILE:BOOL=OFF -DBUILD_BINDINGS:BOOL=ON .
+> cmake .
 > make
 
-To install libstego run
+Now you can run lemonjuice by enter
+
+> python limejuice.py
+
+from the limejuice-subdirectory
+
+To install libstego, libstegofile and the python-bindings run
 
 > make install
 
