@@ -11,6 +11,7 @@ SET(VER_PATCH "0")
 INCLUDE(InstallRequiredSystemLibraries)
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "libstego")
+SET(CPACK_PACKAGE_CONTACT "pg-stego@informatik.uni-oldenburg.de")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
 SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")
@@ -26,6 +27,8 @@ SET(CPACK_SOURCE_IGNORE_FILES
   "**/*.o"
   "**/*.os"
   "_CPack_Packages/")
+
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.9-4),libjpeg62 (>=6b-14),libgif4 (>=4.1.6-6),libpng12-0 (>=1.2.27-1),libsndfile1 (>=1.0.17-2),libxml2 (>=2.6.3.dfsg-1)")
 
 INCLUDE(CPack)
 
