@@ -227,24 +227,19 @@ class MainWnd:
                 self.cmb_method.set_active(0)
 
                 self.txt_pass_m1.set_text("")
-                self.txt_pass_m2.set_text("")
                 result = self.method_dlg.run()
                 self.method_dlg.hide()
                 if result == 1:
                     self.password = self.txt_pass_m1.get_text()
                     self.method = self.cmb_method.get_active()
-                    if self.password != self.txt_pass_m2.get_text():
-                        self.error_pass.run()
-                        self.error_pass.hide()
+                    if self.method >= 0:
+                        lime_control.setup_methods(self.password, self.extension)
+                        self.message = lime_control.embed_or_extract_with_method(
+                                False,
+                                self.method, self.cover, None, None, None)
+                        self.set_state(self.state + 1)
                     else:
-                        if self.method >= 0:
-                            lime_control.setup_methods(self.password, self.extension)
-                            self.message = lime_control.embed_or_extract_with_method(
-                                    False,
-                                    self.method, self.cover, None, None, None)
-                            self.set_state(self.state + 1)
-                        else:
-                            print "Kann die Nachricht nicht extrahieren."
+                        print "Kann die Nachricht nicht extrahieren."
                     self.set_state(1)
             else:
                 self.error_file.run()
