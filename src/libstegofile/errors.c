@@ -29,6 +29,7 @@
 
 const char *LSTG_ERROR_MSGS[] = {
 /*LSTG_E_OPENFAILED  */    "File open failed.",
+/*LSTG_E_CLOSEFAILED */    "File close failed.",
 /*LSTG_E_READFAILED  */    "File read failed.",
 /*LSTG_E_WRITEFAILED */    "File write failed.",
 /*LSTG_E_FRMTNOTSUPP */    "File format not supported.",
@@ -39,8 +40,16 @@ const char *LSTG_ERROR_MSGS[] = {
 /*LSTG_E_MSGTOOLONG  */    "Message too long to embed.",
 /*LSTG_E_XPATH_CONT  */    "XPath context creation failed.",
 /*LSTG_E_XPATH_EXPR  */    "XPath expression evaluation failed.",
+/*LSTG_E_INVALIDFILE */    "Invalid file.",
+/*LSTG_E_PQ_LTFAIL   */    "LT-Process failed.",
+/*LSTG_E_PQ_GAUSSFAIL*/    "Gaussian elimination failed.",
+/*LSTG_E_MLEN_EM_FAIL*/    "Messagelength not correct embedded.",
 
 /*LSTG_E_MALLOC      */    "Memory allocation failed."
 };
 
 enum LSTG_ERROR_CODE lstg_errno;
+
+inline const char *lstg_strerror(const enum LSTG_ERROR_CODE errno) {
+    return (errno > 0 && errno < LSTG_E_LAST) ? LSTG_ERROR_MSGS[errno] : LSTG_E_MSG_UNKNOWN;
+}
