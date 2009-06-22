@@ -3,7 +3,7 @@
 
 import sys
 import os
-sys.path.append("../python_bindings/")
+sys.path.append("../swig_bindings")
 import lime_control
 try:
     import pygtk
@@ -33,6 +33,7 @@ class MainWnd:
         self.lbl_stego_file = self.wTree.get_widget('lbl_stego_file')
         self.lbl_method = self.wTree.get_widget('lbl_method_used')
         self.file_cover = self.wTree.get_widget('file_cover')
+        self.reset_dlg = self.wTree.get_widget('msgdlg_reset')
         self.pass_dlg = self.wTree.get_widget('dlg_password')
         self.method_dlg = self.wTree.get_widget('dlg_method')
         self.txt_stego = self.wTree.get_widget('txt_stego')
@@ -210,8 +211,11 @@ class MainWnd:
 
     def on_btn_prev_clicked(self, button):
         if self.states[self.state] == "finish":
-            self.reset()
-            self.set_state(self.state)
+            result = self.reset_dlg.run()
+            self.reset_dlg.hide()
+            if result == gtk.RESPONSE_YES:
+                self.reset()
+                self.set_state(self.state)
 
         elif self.states[self.state] == "cover":
             if self.cover_set:
@@ -251,8 +255,11 @@ class MainWnd:
                 self.set_state(self.state - 1)
 
             elif self.action == "extract":
-                self.reset()
-                self.set_state(self.state)
+                result = self.reset_dlg.run()
+                self.reset_dlg.hide()
+                if result == gtk.RESPONSE_YES:
+                    self.reset()
+                    self.set_state(self.state)
 
     def on_file_cover_file_set(self, widget):
         coverfile = self.file_cover.get_filename()
