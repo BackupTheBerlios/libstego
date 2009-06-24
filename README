@@ -1,48 +1,55 @@
 INSTALLATION
 ------------
-Make sure you habe installed cmake, libpng, libjpeg, giflib, libxml2, libgmp, libsndfile and libgsl.
+
+required libraries
+------------------
+Please make sure the following libraries are installed on your machine:
+cmake
+libpng
+libjpeg
+giflib
+libxml2
+libgmp
+libsndfile
+libgsl.
 
 libstego
 --------
-To compile libstego from source-archive extract the libstego-0.90.tar.bz2 and run there
+To compile libstego extract libstego-0.90.tar.bz2. A new folder will be created.
+There, open a console and run
 
 > cmake -DBUILD_LIBSTEGO:BOOL=ON -DBUILD_LIBSTEGOFILE:BOOL=OFF -DBUILD_BINDINGS:BOOL=OFF .
 > make
 
-To install libstego run
+To install libstego become root and run
 
 > make install
 
-as root.
-
 libstego + libstegofile
 -----------------------
-To compile libstegofile from source-archive extract the libstego+file-0.90.tar.bz2 and run there
+To compile both libstego and libstegofile extract libstego+file-0.90.tar.bz2 and run 
 
 > cmake -DBUILD_LIBSTEGO:BOOL=ON -DBUILD_LIBSTEGOFILE:BOOL=ON -DBUILD_BINDINGS:BOOL=OFF .
 > make
 
-To install libstego and libstegofile run
+To install libstego and libstegofile become root and run
 
 > make install
 
-as root.
-
 libstego + libstegofile + python-bindings + gui
 -----------------------------------------------
-To compile all libraries and the python bindings from source-archive extract the libstego+file+gui-0.90.tar.bz2 and run there
+To compile all libraries and the python bindings from source-archive extract libstego+file+gui-0.90.tar.bz2 and run
 
 > cmake .
 > make
 
-Now you can run lemonjuice by enter
+Now you can test the gui -- limejuice -- by typing
 
 > python limejuice.py
 
-from the limejuice-subdirectory
+in the limejuice-subdirectory.
 
-To install libstego, libstegofile and the python-bindings run
+To install libstego, libstegofile and the python-bindings become root and run
 
 > make install
 
-as root.
