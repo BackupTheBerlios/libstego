@@ -26,14 +26,14 @@ def setup_methods(password, filetype):
     """JPEG params"""
     if filetype in ["JPEG", "JPG"]:
         # PQ
-        para = libstegofile.pq_parameter()
-        para.header_size = 0
-        para.quality = 0
-        para.password = password
-        para.pwlen = len(password)
-        methods[num_methods] = para
-        method_to_algo[num_methods] = "PQ"
-        num_methods += 1
+        #~ para = libstegofile.pq_parameter()
+        #~ para.header_size = 0
+        #~ para.quality = 0
+        #~ para.password = password
+        #~ para.pwlen = len(password)
+        #~ methods[num_methods] = para
+        #~ method_to_algo[num_methods] = "PQ"
+        #~ num_methods += 1
 
         # F5
         para = libstegofile.f5_parameter()
@@ -190,7 +190,7 @@ def get_best_method(filename, msglen):
                 return None
 
             # check if message fits with the current params
-            if libstego.f5_check_capacity(jpeg_data, para) >= msglen:
+            if libstego.f5_check_capacity(jpeg_data) >= msglen:
                 fits = True
 
             # cleanup
