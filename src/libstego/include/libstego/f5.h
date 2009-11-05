@@ -51,7 +51,7 @@ typedef struct {
 
 uint32_t f5_embed(const jpeg_data_t *src_data, jpeg_data_t *stego_data, uint8_t *message, int32_t msglen, const f5_parameter *para);
 
-uint32_t f5_extract(const jpeg_data_t *stego_data, uint8_t **message, int32_t *msglen, const f5_parameter *para);
+uint32_t f5_extract(const jpeg_data_t *stego_data, uint8_t **message, uint32_t *msglen, const f5_parameter *para);
 
 uint32_t f5_extract_message(f5_context *context);
 

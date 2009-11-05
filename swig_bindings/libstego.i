@@ -21,7 +21,6 @@ int lstg_errno;
 %include cpointer.i
 %pointer_functions(char*, charp);
 %pointer_functions(unsigned int, intp);
-%pointer_functions(int, intp0);
 %pointer_functions(char**, charpp);
 %apply unsigned int *OUTPUT { unsigned int *capacity };
 %include "../src/include/libstego/types.h"

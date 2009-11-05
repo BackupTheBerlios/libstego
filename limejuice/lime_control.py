@@ -426,7 +426,6 @@ def embed_or_extract_with_method(embed, method, filename, destfilename, message,
             else:
                 print "Error while embedding with F5."
         else:
-            p_msglen = libstego.new_intp0()
             err = libstego.f5_extract(jpeg_data, p_message, p_msglen, para)
             if err != 0:
                 print "Error while extracting with F5."

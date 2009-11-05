@@ -83,7 +83,7 @@ uint32_t f5_embed(const jpeg_data_t *src_data, jpeg_data_t *stego_data, uint8_t 
 * @param *para additional parameters for F5 including passphrase
 * @return LSTG_ERROR if error or LSTG_OK if success
 */
-uint32_t f5_extract(const jpeg_data_t *stego_data, uint8_t **message, int32_t *msglen, const f5_parameter *para)
+uint32_t f5_extract(const jpeg_data_t *stego_data, uint8_t **message, uint32_t *msglen, const f5_parameter *para)
 {
     uint32_t error;
     f5_context context;
@@ -185,23 +185,23 @@ uint32_t f5_check_capacity(const jpeg_data_t *src_data, uint32_t *capacity)
     uint32_t m2 = 0;
     // iterate components
     for (i = 0; i < src_data->comp_num; i++) {
-	    num_blocks += src_data->comp[i].nblocks;
-	    // iterate blocks
-	    for (j = 0; j < src_data->comp[i].nblocks; j++) {
-	        // iterate coefficient
-	        for (k = 0; k < 64; k++) {
+        num_blocks += src_data->comp[i].nblocks;
+        // iterate blocks
+        for (j = 0; j < src_data->comp[i].nblocks; j++) {
+            // iterate coefficient
+            for (k = 0; k < 64; k++) {
                 coeff = src_data->comp[i].blocks[j].values[k];
-		        if (coeff == -2 || coeff == 2) {
-		            m2++;
-		        }
-		        else if (coeff == -1 || coeff == 1) {
-		            m1++;
-		        } 
-		        else if (coeff == 0) {
-		            m0++;
-		        }
-	        }
-	    }
+                if (coeff == -2 || coeff == 2) {
+                    m2++;
+                }
+                else if (coeff == -1 || coeff == 1) {
+                    m1++;
+                } 
+                else if (coeff == 0) {
+                    m0++;
+                }
+            }
+        }
     }
     num_coeff = num_blocks * 64;
     ng = num_coeff - m0 - m1 - m2/4 - num_coeff/64 + m1/3;
@@ -222,7 +222,7 @@ uint32_t f5_create_coeff_list(f5_context *context)
     // count non-zero coefficients
     // iterate components
     for (i = 0; i < context->stego_data->comp_num; i++) {
-	    num_coeff += (context->stego_data->comp[i].nblocks * 63);
+        num_coeff += (context->stego_data->comp[i].nblocks * 63);
 
     }
     // initiate coeff list
@@ -230,14 +230,14 @@ uint32_t f5_create_coeff_list(f5_context *context)
     l = 0;
     for (i = 0; i < context->stego_data->comp_num; i++) {
 
-	    // iterate blocks
-	    for (j = 0; j < context->stego_data->comp[i].nblocks; j++) {
-	        // iterate coefficient, skip DC
-	        for (k = 1; k < 64; k++) {
-		        context->coeff_list[l] = &context->stego_data->comp[i].blocks[j].values[k];
-		        l++;
-	        }
-	    }
+        // iterate blocks
+        for (j = 0; j < context->stego_data->comp[i].nblocks; j++) {
+            // iterate coefficient, skip DC
+            for (k = 1; k < 64; k++) {
+                context->coeff_list[l] = &context->stego_data->comp[i].blocks[j].values[k];
+                l++;
+            }
+        }
     }
 
     context->list_len = num_coeff;
@@ -245,10 +245,10 @@ uint32_t f5_create_coeff_list(f5_context *context)
     int16_t *temp;
     // shuffle coeff_list
     for( i = 0; i < num_coeff; i++) {
-	    rand_num = random_next(context->random) % num_coeff;
-	    temp = context->coeff_list[0];
-	    context->coeff_list[0] = context->coeff_list[rand_num];
-	    context->coeff_list[rand_num] = temp;
+        rand_num = random_next(context->random) % num_coeff;
+        temp = context->coeff_list[0];
+        context->coeff_list[0] = context->coeff_list[rand_num];
+        context->coeff_list[rand_num] = temp;
     }
     return LSTG_OK;
 
@@ -266,15 +266,15 @@ uint32_t f5_choose_code(f5_context *context)
     f5_check_capacity(context->stego_data, &n_g);
     //printf("Starting choose code with n_g = %d\n", n_g);
     for( i = 1; i < 8; i++) {
-	    n = (1 << i) - 1;
-	    uint32_t usable = (uint32_t)(n_g * i / n - (n_g * i / n) % n);
-	    usable /= 8;
-		    if (usable == 0) {
-		        break;
-	        }
-		    if (usable < context->msg_len + 4) {
-			    break;
-	        }
+        n = (1 << i) - 1;
+        uint32_t usable = (uint32_t)(n_g * i / n - (n_g * i / n) % n);
+        usable /= 8;
+            if (usable == 0) {
+                break;
+            }
+            if (usable < context->msg_len + 4) {
+                break;
+            }
     }
     context->k = i-1;
     context->n = (1 << context->k) - 1;
@@ -341,43 +341,43 @@ uint32_t f5_matrix_encode(f5_context *context)
     // embed the message blockwise of length k in n coefficients
     for(msg_block_count = 0; msg_block_count < num_msg_blocks; msg_block_count++) {
     // get k messagebits
-	k_bits_to_embed = (uint8_t)get_msg_block(context->message, msg_block_count, k);
-	success = 0;
-	do {
-	    if(coeff_block_count+n >= context->list_len) {
-		FAIL(LSTG_E_INSUFFCAP);
-	    }
+    k_bits_to_embed = (uint8_t)get_msg_block(context->message, msg_block_count, k);
+    success = 0;
+    do {
+        if(coeff_block_count+n >= context->list_len) {
+        FAIL(LSTG_E_INSUFFCAP);
+        }
 
-	    hash = 0;
-	    // put n non-zero coeffs in a buffer an calculate a hash
-	    for(i = 0; i < n; current_coeff++) {
-		// choose a coeff != 0 
-		    while(*(context->coeff_list[current_coeff]) == 0) {
-		        current_coeff++;
-		    }
-		    codecoeffs[i] = context->coeff_list[current_coeff];
+        hash = 0;
+        // put n non-zero coeffs in a buffer an calculate a hash
+        for(i = 0; i < n; current_coeff++) {
+        // choose a coeff != 0 
+            while(*(context->coeff_list[current_coeff]) == 0) {
+                current_coeff++;
+            }
+            codecoeffs[i] = context->coeff_list[current_coeff];
             int16_t coeff = *(codecoeffs[i]);
-		    if((int16_t)abs(coeff) & 1) {
-		    hash ^= i+1;
-		    }
-		    i++;
-	    }
-	    s = hash ^ k_bits_to_embed;
-	    if (s == 0) {
-		success = 1;
+            if((int16_t)abs(coeff) & 1) {
+            hash ^= i+1;
+            }
+            i++;
+        }
+        s = hash ^ k_bits_to_embed;
+        if (s == 0) {
+        success = 1;
                 start_of_coeff_block = current_coeff;   
-	    }
-	    else {
-		s--;
-		int16_t *coeff = codecoeffs[s];
-		if(*coeff > 0) {
-		  (*coeff)-=1;
-		}
-		else {
-		  (*coeff)+=1;
-		}
-		if(*coeff) {
-		    success = 1;
+        }
+        else {
+        s--;
+        int16_t *coeff = codecoeffs[s];
+        if(*coeff > 0) {
+          (*coeff)-=1;
+        }
+        else {
+          (*coeff)+=1;
+        }
+        if(*coeff) {
+            success = 1;
                     start_of_coeff_block = current_coeff;   
                 }
                 else {
@@ -386,8 +386,8 @@ uint32_t f5_matrix_encode(f5_context *context)
                 }
                     
                         
-	    }
-    	} while(!success);
+        }
+        } while(!success);
     
     }
     free(codecoeffs);
