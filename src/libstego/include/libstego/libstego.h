@@ -35,9 +35,8 @@
 #include "frirui.h"
 #include "gifshuffle.h"
 #include "lsb.h"
-#include "mb2.h"
 #include "pq.h"
 #include "sort_unsort.h"
-#include "t.h"
+
 
 #endif // __LIBSTEGO_H__
