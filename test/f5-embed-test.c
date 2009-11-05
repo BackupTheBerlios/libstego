@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     jpeg_internal_data_t jpeg_internal;
     int ret = 0;
 
-    uint8_t error = io_jpeg_read("bild.jpg", &jpeg_data, &jpeg_internal);
+    uint8_t error = io_jpeg_read("bild2.jpg", &jpeg_data, &jpeg_internal);
     if(error != 0) {
         printf("Error: %d\n", lstg_errno);
         return 1;   
