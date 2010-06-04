@@ -87,7 +87,7 @@ uint32_t io_png_read(const uint8_t *filename, rgb_data_t *rgb_data, png_internal
     uint8_t if_alpha = 0;
     // Convert color type or bit depth if necessary
     if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
-        png_set_gray_1_2_4_to_8(png_ptr);
+        TO8BIT(png_ptr);
     }
     else if (color_type == PNG_COLOR_TYPE_RGB) {
 

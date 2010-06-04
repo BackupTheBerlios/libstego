@@ -34,6 +34,13 @@
 #include <libstego/errors.h>
 #include <png.h>
 
+// Workaround due api change of libpng 1.4
+#if PNG_LIBPNG_VER >= 10400
+#define TO8BIT(png_ptr) png_set_expand_gray_1_2_4_to_8(png_ptr);
+#else
+#define TO8BIT(png_ptr) png_set_gray_1_2_4_to_8(png_ptr);
+#endif
+
 typedef struct {
     png_structp png_struct;
     png_infop info_struct;
